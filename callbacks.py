@@ -119,7 +119,27 @@ class CustomGetMetricCallback(object):
 
         with open(self.save_path, 'w') as f:
             json.dump({"metrics": self.metrics}, f, indent=2)
+
+    def visualize_losses(self, logfile=""):
+        logfile = self.save_path if logfile == "" else logfile
         
+        from matplotlib import pyplot as plt
+        with open(os.path.abspath(logfile), 'r') as f:
+            jsondata = json.load(f)
+
+        metric_data = jsondata['metrics']
+        epochs = [x['epoch'] for x in metric_data]
+        train_losses = [x['train_loss']['loss'] for x in metric_data]
+        valid_losses = [x['valid_loss']['loss'] for x in metric_data]
+
+        plt.figure(dpi=1200)
+        plt.plot(epochs, train_losses, label='train')
+        plt.plot(epochs, valid_losses, label='valid')
+        plt.xlabel("Epochs")
+        plt.ylabel("Losses")
+        plt.legend()
+        plt.savefig(os.path.join(os.path.dirname(logfile), "losses_graph.png"))
+
 
 class CustomSaveBestWeightCallback(object):
     """
@@ -146,6 +166,7 @@ class CustomSaveBestWeightCallback(object):
         else:
             filename = "best-weight_" + _hash + ext
 
+        save_path = os.path.join(save_path, "weights") if save_path.split('/')[-1] != 'weights' else save_path
         save_path = os.path.join(save_path, filename)
         self.save_path = save_path
 
@@ -225,3 +246,8 @@ class CustomEarlyStopping(object):
         else:
             self.best_score = score
             self.counter = 0
+
+if __name__ == "__main__":
+    a = CustomGetMetricCallback(save_path='')
+
+    a.visualize_losses("/home/bulgogi/bolero/projects/eb87a7b2da371ef3/losses_eb87a7b2da371ef3.json")
