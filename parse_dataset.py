@@ -16,17 +16,17 @@ def get_dataset(imgpath, annotpath):
     """
 
     datalist = []
-    images, annotations = [], []
-    widths, heights = [], []
+    images, annotations, widths, heights = [], [], [], []
 
     imglist = glob(os.path.join(imgpath, "*.jpg"))
 
     for i, imgname in tqdm(enumerate(imglist), total=len(imglist), desc='Parsing Dataset ... '):
-        images.append(imgname)
+        assert os.path.isfile(imgname)
 
         img = cv2.imread(imgname)
         ih, iw, ic = img.shape
 
+        images.append(imgname)
         widths.append(iw)
         heights.append(ih)
 
@@ -43,7 +43,7 @@ def get_dataset(imgpath, annotpath):
             temp_annots.append(annotval)
         annotations.append(temp_annots)
 
-        datalist = [images, annotations, widths, heights]
+    datalist = [images, annotations, widths, heights]
     
     return datalist
     
@@ -52,3 +52,14 @@ if __name__ == "__main__":
     res = get_dataset("/home/bulgogi/bolero/dataset/WiderFaceDetectionDataset/WIDER_total/images", "/home/bulgogi/bolero/dataset/WiderFaceDetectionDataset/WIDER_total/annotations") 
 
     print(res)
+
+    if os.path.isfile(f"dataset/{job.dataset_name}"):
+        with open(f"dataset/{job.dataset_name}", "rb") as pck_dataset:
+            dataset = pickle.load(pck_dataset)
+
+    else:
+        dataset = get_dataset("/home/bulgogi/bolero/dataset/WiderFaceDetectionDataset/WIDER_total/images",
+                            "/home/bulgogi/bolero/dataset/WiderFaceDetectionDataset/WIDER_total/annotations")
+        os.makedirs("dataset", exist_ok=True)
+        with open(f"dataset/{job.dataset_name}", "wb") as pck_dataset:
+            pickle.dump(dataset, pck_dataset)
