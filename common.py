@@ -3,6 +3,40 @@ import os
 import numpy as np
 from glob import glob
 from uuid import uuid1, uuid4
+from tqdm import tqdm
+
+
+def image_compositing(src1, src2, resize=None):
+    if isinstance(src1, str) and os.path.isfile(src1):
+        src1 = cv2.imread(src1, cv2.IMREAD_COLOR)# / 255.0
+        if resize is not None:
+            src1 = cv2.resize(src1, tuple(resize))
+    if isinstance(src2, str) and os.path.isfile(src2):
+        src2 = cv2.imread(src2, cv2.IMREAD_COLOR)# / 255.0
+        if resize is not None:
+            src2 = cv2.resize(src2, tuple(resize))
+
+    alpha = 0.5
+
+    image = cv2.addWeighted(src1, alpha, src2, (1 - alpha), 0)
+    #image = image * 255.0
+
+    return image
+
+
+def compositing(colormap_path, original_path, cmap_format='png', original_format='jpg', resize=(960, 960)):
+    cmap_list = glob(os.path.join(colormap_path, f'*.{cmap_format}'))
+    savepath = os.path.join(colormap_path, 'composited')
+    os.makedirs(savepath, exist_ok=True)
+    print("\n\n -> save path :", savepath, "\n\n")
+
+    for i, c in tqdm(enumerate(cmap_list), total=len(cmap_list)):
+        ori_image = os.path.join(original_path, os.path.basename(c).replace(cmap_format, original_format))
+        assert os.path.isfile(ori_image)
+
+        output = image_compositing(c, ori_image, resize=resize)
+
+        cv2.imwrite(os.path.join(savepath, f"composited_{os.path.basename(c)}"), output)
 
 
 class convert_coordinate(object):
@@ -423,7 +457,15 @@ def get_colormap(count=256, cmap_type="pascal"):
 
 
 if __name__ == "__main__":
+    """
     img_rootpath = "/Users/bolero/dc/dataset/WiderFaceDetectionDataset/WIDER_total/total"
     imglist = glob(os.path.join(img_rootpath, "*.jpg"))
 
     crop_dataset(imglist, "/Users/bolero/dc/dataset/WiderFaceDetectionDataset/Wider_total_cropped")
+    """
+    root_path = '/home/bulgogi/bolero/dataset/sauce_segmentation_datasets/sauce_8class_train/original/no_dough/images'
+    colormap_path = os.path.join(root_path, 'outputs')
+    original_path = root_path
+
+    compositing(colormap_path, original_path, resize=(2048, 1024))
+    # """
