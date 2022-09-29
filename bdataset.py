@@ -51,7 +51,9 @@ class DatasetParser:
                 heights.append(ih)
 
                 basename = os.path.basename(imgname)
-                annotname = os.path.join(self.annotpath, basename.replace("jpg", "txt"))
+                _basename, _ext = os.path.splitext(basename)
+                annotname = os.path.join(self.annotpath, f"{_basename}.txt")
+                assert os.path.isfile(annotname)
 
                 annotfile = open(annotname, "r")
                 annotlines = annotfile.readlines()

@@ -19,7 +19,10 @@ class CustomGetMetricCallback(object):
         epoch = 기록할 epoch 값
         metrics = [[train_metric], [valid_metric]]
         metrics_name = [[train_metric_name], [valid_metric_name]]
+
     example:
+    my_getMetric = CustomGetMetricCallback(save_path=self.job.save_dir,
+                                           _hash=self.job.hash)
     my_getmetric.save_status(epoch + 1,
                              metrics=[[round(mloss.cpu().numpy().tolist()[3], 4), round(mloss.cpu().numpy().tolist()[0], 4)],   # train metric
                                       [round(loss, 4), round(mAP, 4)]],                                                         # validation metric
@@ -150,7 +153,11 @@ class CustomSaveBestWeightCallback(object):
         model_metric = best epoch임을 판별하기 위해 비교 가능한 변수(val_loss, mAP 등) -> init val : inf / -inf
         compared = 해당 model_metric이 더 작아야 best 인지 더 커야 best 인지 판별하기 위함. ('less'/'more')
         lib = weight 저장 형식이 'KERAS'(=.hdf5) 인지 'TORCH'(=.pt) 인지 알려줌
+
     example:
+    my_saveBestWeight = CustomSaveBestWeightCallback(save_path=self.job.save_dir,
+                                                     _hash=self.job.hash,
+                                                     lib='TORCH')
     my_savebestweight.save_best_weight(model=self, model_loss=avg_mAP, compared='more', lib='TORCH')
     """
 
@@ -210,6 +217,9 @@ class CustomSaveBestWeightCallback(object):
 
 
 class CustomEarlyStopping(object):
+    """
+    my_earlyStop = CustomEarlyStopping(patience=int(epochs * 0.1))
+    """
     def __init__(self, patience=10, verbose=False, delta=0):
         """
         Args:
