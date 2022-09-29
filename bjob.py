@@ -13,6 +13,10 @@ class Project(object):
         project_path = os.getenv("PROJECT_HOME")
         return os.path.join(project_path, str(_hash))
 
+    def weight_fpath(self, _hash):
+        project_path = os.getenv("PROJECT_HOME")
+        return os.path.join(project_path, _hash, "weights", f"best-weight_{_hash}.pt")
+
     def save_job(self, data:dict, path:str):
         with open(path, 'w') as f:
             json.dump(data, f, indent=2)
