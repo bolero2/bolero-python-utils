@@ -9,7 +9,7 @@ class DatasetParser:
     def __init__(self, imgpath, annotpath, category_file="", pkl_path=""):
         self.imgpath = imgpath
         self.annotpath = annotpath
-        if os.path.basename(pkl_path).split('.')[-1] != "pkl":
+        if pkl_path == "":
             self.pkl_path = os.path.abspath(pkl_path) + ".pkl"
         else:
             self.pkl_path = pkl_path
@@ -87,8 +87,9 @@ class DatasetParser:
         print("Save dataset to pickle format.")
         with open(pkl_path, "wb") as pkl_file:
             pickle.dump(dataset, pkl_file)
-    
-    def load_dataset(self, pkl_path: str):
+
+    @staticmethod
+    def load_dataset(pkl_path: str):
         print(f"Load dataset from pickle format : {os.path.basename(pkl_path)}")
         dataset = None
 
