@@ -4,6 +4,100 @@ import pandas as pd
 from common import get_colormap, convert_coordinate
 
 
+def iou(box1, box2):
+    def _is_box_intersect(box1, box2):
+        if (
+            abs(box1[0] - box2[0]) < box1[2] + box2[2]
+            and abs(box1[1] - box2[1]) < box1[3] + box2[3]
+        ):
+            return True
+        else:
+            return False
+
+    def _get_area(box):
+        return box[2] * box[3]
+
+    def _get_intersection_area(box1, box2):
+    # intersection area
+        return abs(max(box1[0], box2[0]) - min(box1[0] + box1[2], box2[0] + box2[2])) * abs(
+            max(box1[1], box2[1]) - min(box1[1] + box1[3], box2[1] + box2[3])
+        )
+    def _get_union_area(box1, box2, inter_area=None):
+        area_a = _get_area(box1)
+        area_b = _get_area(box2)
+        if inter_area is None:
+            inter_area = _get_intersection_area(box1, box2)
+
+        return float(area_a + area_b - inter_area)
+
+    # if boxes dont intersect
+    if _is_box_intersect(box1, box2) is False:
+        # print("zero")
+        return 0
+    inter_area = _get_intersection_area(box1, box2)
+    union = _get_union_area(box1, box2, inter_area=inter_area)
+    # intersection over union
+    iou = inter_area / union
+    if iou < 0:
+        iou = 0
+    # print(f"iou: {iou}")
+    # assert iou >= 0
+    return iou
+
+
+class SegmentationEvaluator(object):
+    def __init__(self, num_class):
+        self.num_class = num_class
+        self.confusion_matrix = np.zeros((self.num_class,) * 2)
+
+    def Pixel_Accuracy(self):
+        Acc = np.diag(self.confusion_matrix).sum() / self.confusion_matrix.sum()
+        return Acc
+
+    def Pixel_Accuracy_Class(self):
+        Acc = np.diag(self.confusion_matrix) / self.confusion_matrix.sum(axis=1)
+        Acc = np.nanmean(Acc)
+        return Acc
+
+    def Mean_Intersection_over_Union(self):
+        MIoU = np.diag(self.confusion_matrix) / (
+            np.sum(self.confusion_matrix, axis=1)
+            + np.sum(self.confusion_matrix, axis=0)
+            - np.diag(self.confusion_matrix)
+        )
+        MIoU = np.nanmean(MIoU)
+        return MIoU
+
+    def Frequency_Weighted_Intersection_over_Union(self):
+        freq = np.sum(self.confusion_matrix, axis=1) / np.sum(self.confusion_matrix)
+        iu = np.diag(self.confusion_matrix) / (
+            np.sum(self.confusion_matrix, axis=1)
+            + np.sum(self.confusion_matrix, axis=0)
+            - np.diag(self.confusion_matrix)
+        )
+
+        FWIoU = (freq[freq > 0] * iu[freq > 0]).sum()
+        return FWIoU
+
+    def _generate_matrix(self, gt_image, pre_image):
+        mask = (gt_image >= 0) & (gt_image < self.num_class)
+        label = self.num_class * gt_image[mask].astype("int") + pre_image[mask]
+        count = np.bincount(label, minlength=self.num_class ** 2)
+
+        confusion_matrix = count.reshape(self.num_class, self.num_class)
+        return confusion_matrix
+
+    def add_batch(self, gt_image, pre_image):
+        # printShape(gt_image)
+        # printShape(pre_image)
+        if gt_image.shape != pre_image.shape:
+            print("GT_Image's shape is different with PRE_IMAGE's shape!")
+            exit(0)
+        self.confusion_matrix += self._generate_matrix(gt_image, pre_image)
+
+    def reset(self):
+        self.confusion_matrix = np.zeros((self.num_class,) * 2)
+
 def get_metric_for_detection(
     dataframe,
     csv_path,
@@ -310,6 +404,91 @@ def get_metric_for_detection(
 def get_metric_for_segmentation(dataframe, csv_path, category_list=1, prefix=[]):
     yt_prefix = path_join(prefix[0], prefix[1][0])
     yp_prefix = path_join(prefix[0], prefix[1][1])
+
+    # is_dontcare_inTarget = False
+    print("\n\n============== Semantic Segmentaion Metric START ==============")
+    print(f"Now Date Time: {datetime.datetime.now()}")
+    evaluator = SegmentationEvaluator(len(category_list))
+    evaluator.reset()
+    df_list = dataframe.values.tolist()
+
+    columns = dataframe.columns.values.tolist() + ["pixel_acc", "pixel_acc_per_class", "mean_iou", "fw_iou"]
+    vallist = []
+
+    for elem in tqdm(df_list, desc=" Comparing between GT and prediction... "):
+        input_data, result_images, gt, target = elem
+
+        gt_image = Image.open(os.path.join(yt_prefix, gt))
+        gt_image = np.array(gt_image)
+        target_image = Image.open(os.path.join(yp_prefix, target))
+        target_image = np.array(target_image)
+
+        evaluator.add_batch(gt_image, target_image)
+
+        Acc = evaluator.Pixel_Accuracy()
+        Acc_class = evaluator.Pixel_Accuracy_Class()
+        mIoU = evaluator.Mean_Intersection_over_Union()
+        FWIoU = evaluator.Frequency_Weighted_Intersection_over_Union()
+        vallist.append([input_data, result_images, gt, target, Acc, Acc_class, mIoU, FWIoU])
+
+    sum_Acc = 0
+    sum_Acc_class = 0
+    sum_mIoU = 0
+    sum_FWIoU = 0
+
+    for val in vallist:
+        sum_Acc = sum_Acc + val[-4]
+        sum_Acc_class = sum_Acc_class + val[-3]
+        sum_mIoU = sum_mIoU + val[-2]
+        sum_FWIoU = sum_FWIoU + val[-1]
+
+    sum_Acc = sum_Acc / len(vallist)
+    sum_Acc_class = sum_Acc_class / len(vallist)
+    sum_mIoU = sum_mIoU / len(vallist)
+    sum_FWIoU = sum_FWIoU / len(vallist)
+
+    table = [
+        ["Pixel Accuracy", float(round(sum_Acc, 4))],
+        ["Pixel Accuracy per Class", float(round(sum_Acc_class, 4))],
+        ["Mean Intersection over Union(meanIoU)", float(round(sum_mIoU, 4))],
+        ["Freq. Weighted Intersection over Union(FW IoU)", float(round(sum_FWIoU, 4))],
+    ]
+    
+    print(tabulate(table, tablefmt="grid"))
+    print("=============== Semantic Segmentaion Metric END ===============\n")
+
+    answer = [
+        float(round(sum_Acc, 4)),
+        float(round(sum_Acc_class, 4)),
+        float(round(sum_mIoU, 4)),
+        float(round(sum_FWIoU, 4)),
+    ]
+
+    # job_id = csv_path.split("/")[-2]
+    # csv_save_path = "/" + ("/").join(csv_path.split("/")[1:-1]) + "/"
+    total_df = pd.DataFrame(vallist, columns=columns)
+    # ResultsPath 맨 뒤로 보내는 작업
+    colname = "results_path"
+    colindex = columns.index(colname)
+    reset_columns = columns[0:colindex] + columns[colindex + 1:] + columns[colindex:colindex + 1]
+    total_df = total_df[reset_columns]
+
+    total_df.to_csv(csv_path, index=False)
+
+    return answer
+
+
+def get_metric_for_segmentation(dataframe, csv_path, category_list=1):
+    """This function returns segmentation metrics(pixel accuracy, meanIoU etc.)
+
+    :param dataframe: A dataframe which has 
+        [input_data path, composited image path, ground-truth path, result_colormap path]
+    :param csv_path: Path of dataframe(.csv) file saved.
+    :param category_list: A list of category.
+
+    """
+    # yt_prefix = path_join(prefix[0], prefix[1][0])
+    # yp_prefix = path_join(prefix[0], prefix[1][1])
 
     # is_dontcare_inTarget = False
     print("\n\n============== Semantic Segmentaion Metric START ==============")
