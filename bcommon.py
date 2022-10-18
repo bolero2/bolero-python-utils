@@ -3,7 +3,54 @@ import os
 import numpy as np
 from glob import glob
 from uuid import uuid1, uuid4
+import torch
 from tqdm import tqdm
+
+
+def decode_seg_map_sequence(label_masks, dataset='pascal'):
+    rgb_masks = []
+    for label_mask in label_masks:
+        rgb_mask = decode_segmap(label_mask, dataset)
+        rgb_masks.append(rgb_mask)
+    rgb_masks = torch.from_numpy(np.array(rgb_masks).transpose([0, 3, 1, 2]))
+    return rgb_masks
+
+
+def decode_segmap(label_mask, dataset, plot=False):
+    """Decode segmentation class labels into a color image
+    Args:
+        label_mask (np.ndarray): an (M,N) array of integer values denoting
+          the class label at each spatial location.
+        plot (bool, optional): whether to show the resulting color image
+          in a figure.
+    Returns:
+        (np.ndarray, optional): the resulting decoded color image.
+    """
+    if dataset == 'pascal' or dataset == 'coco':
+        n_classes = 21
+        label_colours = get_colormap(cmap_type='pascal')
+    elif dataset == 'cityscapes':
+        n_classes = 19
+        label_colours = get_colormap(cmap_type='cityscapes')
+    else:
+        raise NotImplementedError
+
+    r = label_mask.copy()
+    g = label_mask.copy()
+    b = label_mask.copy()
+    for ll in range(0, n_classes):
+        r[label_mask == ll] = label_colours[ll, 0]
+        g[label_mask == ll] = label_colours[ll, 1]
+        b[label_mask == ll] = label_colours[ll, 2]
+    rgb = np.zeros((label_mask.shape[0], label_mask.shape[1], 3))
+    rgb[:, :, 0] = r / 255.0
+    rgb[:, :, 1] = g / 255.0
+    rgb[:, :, 2] = b / 255.0
+    if plot:
+        plt.imshow(rgb)
+        plt.show()
+    else:
+        return rgb
 
 
 def image_compositing(src1, src2, resize=None):
@@ -264,7 +311,7 @@ def get_colormap(count=256, cmap_type="pascal"):
 
         return colormap
 
-    elif cmap_type == "cityscape":
+    elif cmap_type == "cityscapes":
         colormap = np.zeros((256, 3), dtype=np.uint8)
         colormap[0] = [128, 64, 128]
         colormap[1] = [244, 35, 232]
