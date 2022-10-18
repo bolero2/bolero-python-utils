@@ -1,8 +1,153 @@
 import os
-import numpy as np
 import pandas as pd
+import numpy as np
+from numpy import cov
+from numpy import trace
+from numpy import iscomplexobj
+from scipy.linalg import sqrtm
+import math
+import cv2
+import datetime
+from PIL import Image
+import time
+from decimal import Decimal as dec
+import matplotlib.pyplot as plt
+import matplotlib.patches as patches
+from sklearn.metrics import confusion_matrix
+from sklearn.metrics import classification_report, accuracy_score, roc_auc_score
+from sklearn.metrics import silhouette_samples, silhouette_score, davies_bouldin_score # Clustering 용
+from tabulate import tabulate
+from tqdm import tqdm
 from common import get_colormap, convert_coordinate
+import logging
+logger = logging.getLogger(__name__)
 
+np.seterr(all="ignore")\
+
+def iou(box1, box2):
+    def _is_box_intersect(box1, box2):
+        if (
+            abs(box1[0] - box2[0]) < box1[2] + box2[2]
+            and abs(box1[1] - box2[1]) < box1[3] + box2[3]
+        ):
+            return True
+        else:
+            return False
+
+    def _get_area(box):
+        return box[2] * box[3]
+
+    def _get_intersection_area(box1, box2):
+    # intersection area
+        return abs(max(box1[0], box2[0]) - min(box1[0] + box1[2], box2[0] + box2[2])) * abs(
+            max(box1[1], box2[1]) - min(box1[1] + box1[3], box2[1] + box2[3])
+        )
+    def _get_union_area(box1, box2, inter_area=None):
+        area_a = _get_area(box1)
+        area_b = _get_area(box2)
+        if inter_area is None:
+            inter_area = _get_intersection_area(box1, box2)
+
+        return float(area_a + area_b - inter_area)
+
+    # if boxes dont intersect
+    if _is_box_intersect(box1, box2) is False:
+        # print("zero")
+        return 0
+    inter_area = _get_intersection_area(box1, box2)
+    union = _get_union_area(box1, box2, inter_area=inter_area)
+    # intersection over union
+    iou = inter_area / union
+    if iou < 0:
+        iou = 0
+    # print(f"iou: {iou}")
+    # assert iou >= 0
+    return iou
+
+def AP(precision_list, recall_list):
+    start_index = 0
+    total_area = 0
+    # print(precision_list, recall_list)
+    for recall_index in range(len(recall_list) - 1):
+        if recall_list[recall_index] == recall_list[recall_index + 1]:
+            if start_index == 0:
+                width = recall_list[recall_index]
+            else:
+                width = dec(str(recall_list[recall_index])) - dec(
+                    str(recall_list[start_index])
+                )
+            start_index = recall_index
+            height = precision_list[recall_index]
+            total_area = total_area + dec(str(width)) * dec(str(height))
+
+    return total_area
+
+
+##############
+
+
+class SegmentationEvaluator(object):
+    def __init__(self, num_class):
+        self.num_class = num_class
+        self.confusion_matrix = np.zeros((self.num_class,) * 2)
+
+    def Pixel_Accuracy(self):
+        Acc = np.diag(self.confusion_matrix).sum() / self.confusion_matrix.sum()
+        return Acc
+
+    def Pixel_Accuracy_Class(self):
+        Acc = np.diag(self.confusion_matrix) / self.confusion_matrix.sum(axis=1)
+        Acc = np.nanmean(Acc)
+        return Acc
+
+    def Mean_Intersection_over_Union(self):
+        MIoU = np.diag(self.confusion_matrix) / (
+            np.sum(self.confusion_matrix, axis=1)
+            + np.sum(self.confusion_matrix, axis=0)
+            - np.diag(self.confusion_matrix)
+        )
+        MIoU = np.nanmean(MIoU)
+        return MIoU
+
+    def Frequency_Weighted_Intersection_over_Union(self):
+        freq = np.sum(self.confusion_matrix, axis=1) / np.sum(self.confusion_matrix)
+        iu = np.diag(self.confusion_matrix) / (
+            np.sum(self.confusion_matrix, axis=1)
+            + np.sum(self.confusion_matrix, axis=0)
+            - np.diag(self.confusion_matrix)
+        )
+
+        FWIoU = (freq[freq > 0] * iu[freq > 0]).sum()
+        return FWIoU
+
+    def _generate_matrix(self, gt_image, pre_image):
+        mask = (gt_image >= 0) & (gt_image < self.num_class)
+        label = self.num_class * gt_image[mask].astype("int") + pre_image[mask]
+        count = np.bincount(label, minlength=self.num_class ** 2)
+        print(count.shape)
+
+        confusion_matrix = count.reshape(self.num_class, self.num_class)
+        return confusion_matrix
+
+    def add_batch(self, gt_image, pre_image):
+        print(gt_image.shape)
+        print(pre_image.shape)
+        if gt_image.shape != pre_image.shape:
+            print("GT_Image's shape is different with PRE_IMAGE's shape!")
+            exit(0)
+        try:
+            self.confusion_matrix += self._generate_matrix(gt_image, pre_image)
+        except Exception as e:
+            pass
+
+    def reset(self):
+        self.confusion_matrix = np.zeros((self.num_class,) * 2)
+
+def get_average(data: list):
+    if len(data) > 0:
+        return sum(data) / len(data)
+    else:
+        return 0
 
 def iou(box1, box2):
     def _is_box_intersect(box1, box2):
@@ -105,10 +250,10 @@ def get_metric_for_detection(
     iou_threshold=0.4,
     csv_save_path=None,
     sorting_index=3,
-    prefix=[]):
+    rootpath=""):
 
     # csv save -> image_path, Classname, Yt(label, cx, cy, w, h), Yp(label, cx, cy, w, h), Yp(conf)
-    prefix = path_join(prefix[0], prefix[1])
+    # rootpath = path_join(rootpath[0], rootpath[1])
 
     # 변수 선언하기
     sum_TP, sum_FP, sum_FN, iou_val = 0, 0, 0, 0
@@ -125,8 +270,8 @@ def get_metric_for_detection(
     assert ((len(_test_image_list) == len(gt_class_list)) and (len(gt_bboxes_list) == len(dt_class_list))) and (len(dt_bboxes_list) == len(dt_conf_list)), \
         "Result has difference count!"
 
-    # Saving image paths : [absolute path (test_image_path)] is made from [prefix + relative path (_test_image_list)]
-    test_image_list = [os.path.abspath(os.path.join(prefix, x)) for x in _test_image_list]
+    # Saving image paths : [absolute path (test_image_path)] is made from [rootpath + relative path (_test_image_list)]
+    test_image_list = [os.path.abspath(os.path.join(rootpath, x)) for x in _test_image_list]
     assert len(test_image_list) == len(_test_image_list), \
         f"_test_image_list count {len(_test_image_list)} and test_image_list count {len(test_image_list)} is different."
 
@@ -322,9 +467,9 @@ def get_metric_for_detection(
     # print(total_TPFP_df)
 
     # ResultsPath 맨 뒤로 보내는 작업
-    colname = "results_path"
-    colindex = columns.index(colname)
-    reset_columns = columns[0:colindex] + columns[colindex + 1:] + columns[colindex:colindex + 1]
+    # colname = "results_path"
+    # colindex = columns.index(colname)
+    # reset_columns = columns[0:colindex] + columns[colindex + 1:] + columns[colindex:colindex + 1]
     # total_df = total_df[reset_columns]
 
     plt.clf()
@@ -401,10 +546,7 @@ def get_metric_for_detection(
     return [precision, recall, f1_score, float(mAP)]
 
 
-def get_metric_for_segmentation(dataframe, csv_path, category_list=1, prefix=[]):
-    yt_prefix = path_join(prefix[0], prefix[1][0])
-    yp_prefix = path_join(prefix[0], prefix[1][1])
-
+def get_metric_for_segmentation(dataframe, csv_path, category_list=1):
     # is_dontcare_inTarget = False
     print("\n\n============== Semantic Segmentaion Metric START ==============")
     print(f"Now Date Time: {datetime.datetime.now()}")
@@ -418,9 +560,9 @@ def get_metric_for_segmentation(dataframe, csv_path, category_list=1, prefix=[])
     for elem in tqdm(df_list, desc=" Comparing between GT and prediction... "):
         input_data, result_images, gt, target = elem
 
-        gt_image = Image.open(os.path.join(yt_prefix, gt))
+        gt_image = Image.open(gt)
         gt_image = np.array(gt_image)
-        target_image = Image.open(os.path.join(yp_prefix, target))
+        target_image = Image.open(target)
         target_image = np.array(target_image)
 
         evaluator.add_batch(gt_image, target_image)
@@ -453,7 +595,7 @@ def get_metric_for_segmentation(dataframe, csv_path, category_list=1, prefix=[])
         ["Mean Intersection over Union(meanIoU)", float(round(sum_mIoU, 4))],
         ["Freq. Weighted Intersection over Union(FW IoU)", float(round(sum_FWIoU, 4))],
     ]
-    
+
     print(tabulate(table, tablefmt="grid"))
     print("=============== Semantic Segmentaion Metric END ===============\n")
 
