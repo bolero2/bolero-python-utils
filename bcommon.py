@@ -5,6 +5,7 @@ from glob import glob
 from uuid import uuid1, uuid4
 import torch
 from tqdm import tqdm
+import json
 
 
 def decode_seg_map_sequence(label_masks, dataset='pascal'):
@@ -501,6 +502,18 @@ def get_colormap(count=256, cmap_type="pascal"):
 
     else:
         raise ValueError("Unsupported dataset.")
+
+
+def read_json(json_file:str) -> dict:
+    with open(json_file, 'r') as jf:
+        json_data = json.load(jf)
+
+    return json_data
+
+
+def write_json(json_file:str, data:dict) -> None:
+    with open(json_file, 'w') as jf:
+        json.dump(data, jf)
 
 
 if __name__ == "__main__":
