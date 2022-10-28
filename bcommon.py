@@ -54,37 +54,26 @@ def decode_segmap(label_mask, dataset, plot=False):
         return rgb
 
 
-def image_compositing(src1, src2, resize=None):
-    if isinstance(src1, str) and os.path.isfile(src1):
-        src1 = cv2.imread(src1, cv2.IMREAD_COLOR)# / 255.0
-        if resize is not None:
-            src1 = cv2.resize(src1, tuple(resize))
-    if isinstance(src2, str) and os.path.isfile(src2):
-        src2 = cv2.imread(src2, cv2.IMREAD_COLOR)# / 255.0
-        if resize is not None:
-            src2 = cv2.resize(src2, tuple(resize))
 
-    alpha = 0.5
+def image_blending(target, colormap, gamma=0.25):
+    """Blending target image and segmentation colormap image(png format)
 
-    image = cv2.addWeighted(src1, alpha, src2, (1 - alpha), 0)
-    #image = image * 255.0
+    Args:
+        target (numpy.ndarray): Target Image, RGB color.
+        colormap (PIL.Image): segmented colormap image, this can be used by segmentation ground-truth data.
+        gamma (float): blending strength. Target data is the standard.
 
-    return image
+    Returns:
+        numpy.ndarray image data
+    """
 
+    alpha = gamma
+    beta = 1 - gamma
 
-def compositing(colormap_path, original_path, cmap_format='png', original_format='jpg', resize=(960, 960)):
-    cmap_list = glob(os.path.join(colormap_path, f'*.{cmap_format}'))
-    savepath = os.path.join(colormap_path, 'composited')
-    os.makedirs(savepath, exist_ok=True)
-    print("\n\n -> save path :", savepath, "\n\n")
+    target = np.where(colormap > 0, target * alpha, target)
+    colormap = np.where(colormap > 0, colormap * beta, 0)
 
-    for i, c in tqdm(enumerate(cmap_list), total=len(cmap_list)):
-        ori_image = os.path.join(original_path, os.path.basename(c).replace(cmap_format, original_format))
-        assert os.path.isfile(ori_image)
-
-        output = image_compositing(c, ori_image, resize=resize)
-
-        cv2.imwrite(os.path.join(savepath, f"composited_{os.path.basename(c)}"), output)
+    return target + colormap
 
 
 class convert_coordinate(object):
