@@ -6,6 +6,7 @@ from uuid import uuid1, uuid4
 import torch
 from tqdm import tqdm
 import json
+import datetime
 
 
 def decode_seg_map_sequence(label_masks, dataset='pascal'):
@@ -52,7 +53,29 @@ def decode_segmap(label_mask, dataset, plot=False):
         plt.show()
     else:
         return rgb
+        
 
+def draw_bbox_image(target, coord, type='ccwh', save=False):
+    print(" -> Target :", target)
+    target = cv2.imread(target, cv2.IMREAD_COLOR)
+    ih, iw, ic = target.shape
+    if not isinstance(coord[0], list):
+        coord = [coord]
+
+    for i in range(len(coord)):
+        if type == 'ccwh':
+            get_xyrb = convert_coordinate(coord[i], (ih, iw), 'ccwh', 'relat', 'xyrb', 'abs')
+            xyrb= get_xyrb()
+
+        target = cv2.rectangle(target, (xyrb[0], xyrb[1]), (xyrb[2], xyrb[3]), (0, 255, 0), 1)
+
+    if save:
+        basename = os.path.basename(target)
+        abspath = os.path.dirname(os.path.abspath(target))
+
+        cv2.imwrite(os.path.join(dirname, f"bbox_{basename}"), target)
+
+    return target 
 
 
 def image_blending(target, colormap, gamma=0.25):
@@ -265,15 +288,26 @@ def crop_dataset(imglist, save_path):
 
 
 def get_hash():
+    yyyymmdd = str(datetime.date.today()).replace("-", "")
     id1 = str(uuid1()).split('-')[0]
     id2 = str(uuid4()).split('-')[0]
 
-    return id1 + id2
+    return f"{yyyymmdd}-{id1}{id2}"
 
 def get_colormap(count=256, cmap_type="pascal"):
     """Creates a label colormap used in PASCAL VOC segmentation benchmark.
     Returns:
         A colormap for visualizing segmentation results.
+    """
+    """
+    The way to use this function:
+
+    ```
+    COLORMAP = get_colormap(256)
+    CMAP_LIST = COLORMAP.tolist()
+    PALETTE = [value for color in CMAP_LIST for value in color]
+    ```
+
     """
 
     def bit_get(val, idx):
@@ -506,15 +540,5 @@ def write_json(json_file:str, data:dict) -> None:
 
 
 if __name__ == "__main__":
-    """
-    img_rootpath = "/Users/bolero/dc/dataset/WiderFaceDetectionDataset/WIDER_total/total"
-    imglist = glob(os.path.join(img_rootpath, "*.jpg"))
-
-    crop_dataset(imglist, "/Users/bolero/dc/dataset/WiderFaceDetectionDataset/Wider_total_cropped")
-    """
-    root_path = '/home/bulgogi/bolero/dataset/sauce_segmentation_datasets/sauce_8class_train/original/no_dough/images'
-    colormap_path = os.path.join(root_path, 'outputs')
-    original_path = root_path
-
-    compositing(colormap_path, original_path, resize=(2048, 1024))
-    # """
+    h = get_hash()
+    print(h)
