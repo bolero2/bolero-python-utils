@@ -9,10 +9,11 @@ from copy import deepcopy
 from matplotlib import pyplot as plt
 
 
-imagelist = sorted(glob(os.path.join("images", "*.jpg")))
-annotlist = sorted(glob(os.path.join("annotations", "*.png")))
-os.makedirs(os.path.join("augmented", "normal", "images"), exist_ok=True)
-os.makedirs(os.path.join("augmented", "normal", "annotations"), exist_ok=True)
+rootpath = '/home/bulgogi/bolero/dataset/aistt_dataset/dcdataset/seg_data/cropped'
+imagelist = sorted(glob(os.path.join(rootpath, "images", "*.jpg")))
+annotlist = sorted(glob(os.path.join(rootpath, "annotations", "*.png")))
+os.makedirs(os.path.join(rootpath, "augmented", "normal", "images"), exist_ok=True)
+os.makedirs(os.path.join(rootpath, "augmented", "normal", "annotations"), exist_ok=True)
 
 
 def filtering2(img):       # Gaussian Blur
@@ -52,10 +53,10 @@ for i, data in tqdm(enumerate(zip(imagelist, annotlist)), total=len(imagelist), 
     altant2 = ant.transpose(Image.FLIP_TOP_BOTTOM).transpose(Image.FLIP_LEFT_RIGHT)
     altant3 = ant.transpose(Image.FLIP_TOP_BOTTOM)
     
-    cv2.imwrite(os.path.join("augmented", "normal", "images", f"flip_0_{os.path.basename(imgfile)}"), altimg1)
-    cv2.imwrite(os.path.join("augmented", "normal", "images", f"flip_1_{os.path.basename(imgfile)}"), altimg2)
-    cv2.imwrite(os.path.join("augmented", "normal", "images", f"flip_2_{os.path.basename(imgfile)}"), altimg3)
+    cv2.imwrite(os.path.join(rootpath, "augmented", "normal", "images", f"flip_0_{os.path.basename(imgfile)}"), altimg1)
+    cv2.imwrite(os.path.join(rootpath, "augmented", "normal", "images", f"flip_1_{os.path.basename(imgfile)}"), altimg2)
+    cv2.imwrite(os.path.join(rootpath, "augmented", "normal", "images", f"flip_2_{os.path.basename(imgfile)}"), altimg3)
     
-    altant1.save(os.path.join("augmented", "normal", "annotations", f"flip_0_{os.path.basename(annotfile)}"))
-    altant2.save(os.path.join("augmented", "normal", "annotations", f"flip_1_{os.path.basename(annotfile)}"))
-    altant3.save(os.path.join("augmented", "normal", "annotations", f"flip_2_{os.path.basename(annotfile)}"))
+    altant1.save(os.path.join(rootpath, "augmented", "normal", "annotations", f"flip_0_{os.path.basename(annotfile)}"))
+    altant2.save(os.path.join(rootpath, "augmented", "normal", "annotations", f"flip_1_{os.path.basename(annotfile)}"))
+    altant3.save(os.path.join(rootpath, "augmented", "normal", "annotations", f"flip_2_{os.path.basename(annotfile)}"))

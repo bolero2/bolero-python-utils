@@ -232,7 +232,13 @@ def get_colormap(count=256, cmap_type="pascal"):
 # 기존 데이터셋 개수의 {IMAGE_COUNT} 배수만큼 만들 것.
 IMAGE_COUNT = 2
 
-imglist = glob("images/*.jpg")
+rootpath = '/home/bulgogi/bolero/dataset/aistt_dataset/dcdataset/seg_data/cropped'
+savepath = '/home/bulgogi/bolero/dataset/aistt_dataset/dcdataset/seg_data/cropped/augmented/mosaic'
+os.makedirs(savepath, exist_ok=True)
+os.makedirs(os.path.join(savepath, "images"), exist_ok=True)
+os.makedirs(os.path.join(savepath, "annotations"), exist_ok=True)
+
+imglist = glob(os.path.join(rootpath, 'images', '*.jpg'))
 sample_image = cv2.imread(imglist[0], cv2.IMREAD_COLOR)
 ih, iw, ic = sample_image.shape
 frag_size = (int(ih / 2), int(iw / 2), ic)
@@ -291,5 +297,5 @@ for i in range(len(imglist) * IMAGE_COUNT):    # 기존 데이터셋의 2배수�
 #     plt.imshow(colmap_canvas)
 #     plt.show()
     
-    cv2.imwrite(os.path.join("augmented", "images", f"augmented_mosaic_{i}.jpg"), image_canvas)
-    colmap_canvas.save(os.path.join("augmented", "annotations", f"augmented_mosaic_{i}.png"))
+    cv2.imwrite(os.path.join(savepath, "images", f"augmented_mosaic_{i}.jpg"), image_canvas)
+    colmap_canvas.save(os.path.join(savepath, "annotations", f"augmented_mosaic_{i}.png"))

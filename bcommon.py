@@ -55,6 +55,25 @@ def decode_segmap(label_mask, dataset, plot=False):
         return rgb
         
 
+def draw_bbox_label(image, label, pt1, pt2, color, thickness, font=cv2.FONT_HERSHEY_PLAIN, conf=None, center=True):
+    xmin, ymin = pt1
+    xmax, ymax = pt2
+
+    cv2.rectangle(image, pt1, pt2, color, thickness)
+    cv2.putText(image, str(label), (xmin + 5, ymin + 15), font, 1, color, 1, cv2.LINE_AA)
+
+    if conf is not None:
+        cv2.putText(image, str(np.round(float(conf), 2)), (pt1[0] + 5, pt2[1] - 5), font, 1, color, 1, cv2.LINE_AA)
+
+    if center:
+        xmin, ymin = pt1
+        xmax, ymax = pt2
+
+        centerX = int(abs(xmax - xmin) / 2 + xmin)
+        centerY = int(abs(ymax - ymin) / 2 + ymin)
+        cv2.line(image, (centerX, centerY), (centerX, centerY), color, 7)
+
+
 def draw_bbox_image(target, coord, type='ccwh', save=False):
     print(" -> Target :", target)
     target = cv2.imread(target, cv2.IMREAD_COLOR)
