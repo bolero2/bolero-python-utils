@@ -6,7 +6,7 @@ from PIL import Image
 from tqdm import tqdm
 
 
-rootpath = "/home/bulgogi/bolero/dataset/aistt_dataset/dcdataset/TRAIN/segmentation"
+rootpath = "/home/bulgogi/bolero/dataset/aistt_dataset/dough_data"
 imagelist = sorted(glob(os.path.join(rootpath, "images", "*.jpg")))
 trashbox = os.path.join(rootpath, "trash")
 os.makedirs(trashbox, exist_ok=True)
@@ -14,6 +14,7 @@ os.makedirs(trashbox, exist_ok=True)
 for i, imgfile in tqdm(enumerate(imagelist), total=len(imagelist), desc='Checking shape and pair'):
     annotfile = os.path.join(rootpath, "annotations", os.path.basename(imgfile).replace(".jpg", ".png"))
     assert os.path.isfile(imgfile)
+
     if not os.path.isfile(annotfile):# , f"{annotfile} is None."
         sh.move(imgfile, trashbox)
         continue

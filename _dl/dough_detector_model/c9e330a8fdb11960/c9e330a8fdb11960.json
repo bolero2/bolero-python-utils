@@ -1,0 +1,18 @@
+{
+  "hash": "c9e330a8fdb11960",
+  "dataset_name": "dataset/c9e330a8fdb11960.pkl",
+  "category_names": [
+    "dough"
+  ],
+  "num_categories": 1,
+  "save_dir": "./c9e330a8fdb11960",
+  "yaml_file": "/home/bulgogi/bolero/gopizza-ai-bolero2/yolov5/dc_yolo.yaml",
+  "network_type": "YOLOv5-Lite",
+  "target_size": [
+    640,
+    640,
+    3
+  ],
+  "epochs": 500,
+  "batch_size": 32
+}

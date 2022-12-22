@@ -1,0 +1,57 @@
+{
+  "type": "publicmodel",
+  "model_id": "m-120",
+  "model_name": "YOLOv5-Lite",
+  "version": "1",
+  "source_file": "dc_yolo.py",
+  "setting_yaml": "dc_yolo.yaml",
+  "library": "TORCH",
+  "dataset_type": "IMAGE",
+  "problem_type": "DETECTION",
+  "input_shape": [
+    640,
+    640,
+    3
+  ],
+  "tag": ["Yolo"],
+  "reference": {
+    "github": "https://github.com/ppogg/YOLOv5-Lite",
+    "wiki": "",
+    "docs": ""
+  },
+  "split_type": "list",
+  "model_params": "21.13M",
+  "benchmark": "66.9",
+  "paper": {
+    "title":  "-",
+    "paper_url": "-",
+    "date": "-",
+    "author": "-",
+    "summary_KR": "(논문이 존재하지 않는 모델입니다.)",
+    "summary_ENG": "(It is a network without papers.)"
+  },
+  "default_hyper_params": {
+    "epochs": 300,
+    "batch_size": 32,
+    "network_type": "YOLOv5-Small"
+  },
+  "hyper_params_meta": [
+    {
+      "name": "epochs",
+      "is_mandatory" : true,
+      "data_type" : "integer"
+    },
+    {
+      "name": "batch_size",
+      "is_mandatory": true,
+      "data_type": "integer"
+    },
+    {
+      "name": "network_type",
+      "description": "", 
+      "is_mandatory" : false,
+      "data_type" : "string",
+      "option": ["YOLOv5-Lite", "YOLOv5-Lite-P4", "YOLOv5-Small", "YOLOv5-Medium", "YOLOv5-Large", "YOLOv5-XLarge"]
+    }
+  ]
+}

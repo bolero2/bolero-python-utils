@@ -14,7 +14,7 @@ import pandas as pd
 import matplotlib
 import getpass
 
-MODEL_PATH = f"/home/{getpass.getuser()}/bolero/gopizza-ai-bolero2/yolov5"
+MODEL_PATH = "yolov5"
 PYTHON_UTILS = os.getenv("PYTHON_UTILS")
 PROJECT_HOME = os.getenv("PROJECT_HOME")
 
@@ -34,10 +34,12 @@ from bcommon import convert_coordinate as cc
 
 
 def inference(imagelist=[]):
-    agent = Project(config=f"/home/{getpass.getuser()}/bolero/projects/c9e330a8fdb11960/c9e330a8fdb11960.json")
+    agent = Project(config=f"dough_detector_model/c9e330a8fdb11960/c9e330a8fdb11960.json")
     model = get_model(agent)
 
-    weight_fpath = agent.weight_fpath(agent.hash)
+    # weight_fpath = agent.weight_fpath(agent.hash)
+    weight_fpath = "dough_detector_model/c9e330a8fdb11960/weights/best-weight_c9e330a8fdb11960.pt"
+
     assert os.path.isfile(weight_fpath)
 
     is_cuda = torch.cuda.is_available()
@@ -53,11 +55,9 @@ def inference(imagelist=[]):
     opt['conv_thres'] = 0.5
     opt['image_size'] = (640, 640)
 
-    """
     half = _device.type != 'cpu'  # half precision only supported on CUD
     if half:
         model.half()  # to FP16
-    """
 
     pred_output = []
 
@@ -71,8 +71,8 @@ def inference(imagelist=[]):
         img = np.ascontiguousarray(img)
         img = torch.from_numpy(img).to(_device)
 
-        # img = img.half() if half else img.float()  # uint8 to fp16/32
-        img = img.float()
+        img = img.half() if half else img.float()  # uint8 to fp16/32
+        # img = img.float()
         img /= 255.0  # 0 - 255 to 0.0 - 1.0
         if img.ndimension() == 3:
             img = img.unsqueeze(0)
@@ -121,17 +121,22 @@ def inference(imagelist=[]):
 
 
 if __name__ == "__main__":
-    # live Video version
-    # inference_dough(camid=0)
+    # Modify Here ==============================
 
-    # root_path = f"/home/{getpass.getuser()}/bolero/dataset/sauce_segmentation_datasets/sauce_8class_train"
-    root_path = f"/home/{getpass.getuser()}/bolero/dataset/aistt_dataset/dcdataset/seg_data"
+    root_path = f"/home/{getpass.getuser()}/bolero/dataset/aistt_dataset/dough_data"
+
+    # Modify Here ==============================
+
+    savedir = os.path.join(root_path, "cropped")
+    print("\n >>> save directory :", savedir, "\n")
+    if not os.path.isdir(savedir):
+        os.makedirs(savedir, exist_ok=True)
+
     # Image version
-    image_path = os.path.join(root_path, "images/*.jpg")
+    image_path = os.path.join(root_path, "images", "*.jpg")
     test_images = sorted(glob(image_path))
     test_result = inference(imagelist=test_images)
 
-    savedir = os.path.join(root_path, "cropped")
 
     for ti, tr in zip(test_images, test_result):
         basename = os.path.splitext(os.path.basename(ti))[0]
