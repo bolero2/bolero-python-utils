@@ -6,7 +6,7 @@ from PIL import Image
 from tqdm import tqdm
 
 
-rootpath = "/home/bulgogi/bolero/dataset/aistt_dataset/dough_data"
+rootpath = "/home/bulgogi/bolero/dataset/aistt_dataset/dough_data/cropped"
 imagelist = sorted(glob(os.path.join(rootpath, "images", "*.jpg")))
 trashbox = os.path.join(rootpath, "trash")
 os.makedirs(trashbox, exist_ok=True)

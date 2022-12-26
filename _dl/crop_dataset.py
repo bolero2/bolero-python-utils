@@ -131,6 +131,10 @@ if __name__ == "__main__":
     print("\n >>> save directory :", savedir, "\n")
     if not os.path.isdir(savedir):
         os.makedirs(savedir, exist_ok=True)
+    if not os.path.isdir(os.path.join(savedir, 'images')):
+        os.makedirs(os.path.join(savedir, 'images'), exist_ok=True)
+    if not os.path.isdir(os.path.join(savedir, 'annotations')):
+        os.makedirs(os.path.join(savedir, 'annotations'), exist_ok=True)
 
     # Image version
     image_path = os.path.join(root_path, "images", "*.jpg")
