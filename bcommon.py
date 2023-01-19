@@ -3,13 +3,13 @@ import os
 import numpy as np
 from glob import glob
 from uuid import uuid1, uuid4
-import torch
 from tqdm import tqdm
 import json
 import datetime
 
 
 def decode_seg_map_sequence(label_masks, dataset='pascal'):
+    import torch
     rgb_masks = []
     for label_mask in label_masks:
         rgb_mask = decode_segmap(label_mask, dataset)
