@@ -645,9 +645,9 @@ def get_metric_for_segmentation(dataframe, csv_path, category_list=1):
     for elem in tqdm(df_list, desc=" Comparing between GT and prediction... "):
         input_data, result_images, gt, target = elem
 
-        gt_image = Image.open(os.path.join(yt_prefix, gt))
+        gt_image = Image.open(gt)
         gt_image = np.array(gt_image)
-        target_image = Image.open(os.path.join(yp_prefix, target))
+        target_image = Image.open(target)
         target_image = np.array(target_image)
 
         evaluator.add_batch(gt_image, target_image)
