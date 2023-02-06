@@ -36,8 +36,27 @@ def filtering2(img):       # Gaussian Blur
     dst = cv2.GaussianBlur(img, (0, 0), sigmaX=sigma, sigmaY=sigma)
     return dst
 
-def geometric_flip(img:np.array):
-    pass
+def geometric_flip(img:np.array, annot, type=[0, 1, 2]):
+    ret_images = []
+    ret_annots = []
+
+    for t in type:
+        if t == 0:
+            _img = cv2.flip(img, 0)
+            _annot = annot.transpose(Image.FLIP_TOP_BOTTOM)
+
+        elif t == 1:
+            _img = cv2.flip(img, 1)
+            _annot = annot.transpose(Image.FLIP_LEFT_RIGHT)
+
+        elif t == 2 or t == -1:
+            _img = cv2.flip(img, -1)
+            _annot = annot.transpose(Image.FLIP_TOP_BOTTOM).transpose(Image.FLIP_LEFT_RIGHT)
+
+        ret_images.append(_img)
+        ret_annots.append(_annot)
+
+    return ret_images, ret_annots
 
 
 if __name__ == "__main__":
