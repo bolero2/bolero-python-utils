@@ -1,12 +1,13 @@
 import os
 import cv2
 import shutil as sh
+import numpy as np
 from glob import glob
 from PIL import Image
 from tqdm import tqdm
 
 
-rootpath = "/home/bulgogi/bolero/dataset/aistt_dataset/dough_data/cropped"
+rootpath = "/home/bulgogi/bolero/dataset/aistt_dataset/dcdataset/TRAIN/segmentation/dough_sauce_cheese"
 imagelist = sorted(glob(os.path.join(rootpath, "images", "*.jpg")))
 trashbox = os.path.join(rootpath, "trash")
 os.makedirs(trashbox, exist_ok=True)
@@ -24,6 +25,9 @@ for i, imgfile in tqdm(enumerate(imagelist), total=len(imagelist), desc='Checkin
 
     annot = Image.open(annotfile)
     aw, ah = annot.size
+    annot_np = np.array(annot)
+    if np.unique(annot_np).tolist() == [0]:
+        print("Only zero label :", os.path.basename(annotfile))
 
     if aw != iw or ah != ih:
         print("Different filename :", os.path.basename(imgfile))

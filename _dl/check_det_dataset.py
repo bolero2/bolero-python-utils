@@ -4,18 +4,24 @@ from random import shuffle
 import shutil as sh
 
 
-imagelist = glob("images/*.jpg")
+rootpath = '/home/bulgogi/hdisk/'
+ext = 'png'
+
+imagelist = glob(os.path.join(rootpath, "snue_folder1", "folder1", f"*.{ext}"))
+
 shuffle(imagelist)
+os.makedirs(os.path.join(rootpath, "non_annotations"), exist_ok=True)
 
 for i in imagelist:
-    annotname = os.path.join("annotations", os.path.basename(i).replace('.jpg', '.txt'))
-
-    assert os.path.isfile(annotname), f"{annotname} is not file."
     assert os.path.isfile(i)
 
-    with open(annotname, 'r') as f:
-        lines = f.readlines()
-        if len(lines) == 0:
-            sh.move(i, f"non_annotations/{os.path.basename(i)}")
-            sh.move(annotname, f"non_annotations/{os.path.basename(annotname)}")
+    annotname = os.path.join(i.replace(f'.{ext}', '.txt'))
+    if not os.path.isfile(annotname):
+        sh.move(i, os.path.join(rootpath, "non_annotations", f"{os.path.basename(i)}"))
 
+    else:
+        with open(annotname, 'r') as f:
+            lines = f.readlines()
+            if len(lines) == 0:
+                sh.move(i, os.path.join(rootpath, "non_annotations", f"{os.path.basename(i)}"))
+                sh.move(annotname, os.path.join(rootpath, "non_annotations", f"{os.path.basename(annotname)}"))

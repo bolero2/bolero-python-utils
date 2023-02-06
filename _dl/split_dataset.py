@@ -3,8 +3,8 @@ from random import shuffle
 import os
 import shutil as sh
 
-rootpath = 'total'
-imglist = glob(os.path.join(rootpath, '*.jpg'))
+rootpath = '/home/bulgogi/bolero/dataset/aistt_dataset/dcdataset/TRAIN/segmentation/dough_sauce_cheese'
+imglist = glob(os.path.join(rootpath, 'images', '*.jpg'))
 shuffle(imglist)
 
 print(imglist)
@@ -12,7 +12,7 @@ count = len(imglist)
 
 for i in range(count):
     t_image = imglist[i]
-    t_annot = os.path.join(rootpath, os.path.splitext(os.path.basename(t_image))[0] + ".png")
+    t_annot = os.path.join(rootpath, "annotations", os.path.splitext(os.path.basename(t_image))[0] + ".png")
 
     assert os.path.isfile(t_image) and os.path.isfile(t_annot)
 
@@ -25,5 +25,13 @@ for i in range(count):
     elif int(count * 0.9) < i:
         savepath = 'test'
 
-    sh.copy(t_image, savepath)
-    sh.copy(t_annot, savepath)
+    if not os.path.isdir(os.path.join(rootpath, savepath)):
+        os.makedirs(os.path.join(rootpath, savepath), exist_ok=True)
+
+    if not os.path.isdir(os.path.join(rootpath, savepath, "images")):
+        os.makedirs(os.path.join(rootpath, savepath, "images"), exist_ok=True)
+    if not os.path.isdir(os.path.join(rootpath, savepath, "annotations")):
+        os.makedirs(os.path.join(rootpath, savepath, "annotations"), exist_ok=True)
+
+    sh.copy(t_image, os.path.join(rootpath, savepath, "images"))
+    sh.copy(t_annot, os.path.join(rootpath, savepath, "annotations"))

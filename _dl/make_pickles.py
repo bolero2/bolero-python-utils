@@ -4,9 +4,10 @@ import sys
 from glob import glob
 
 
-trainlist = glob(os.path.join("original", "train", 'images', '*.jpg'))
-validlist = glob(os.path.join("original", "valid", 'images', '*.jpg'))
-testlist = glob(os.path.join("original", "test", 'images', '*.jpg'))
+rootpath = '/home/bulgogi/bolero/dataset/aistt_dataset/dcdataset/TRAIN/segmentation/dough_sauce_cheese'
+trainlist = glob(os.path.join(rootpath, "train", 'images', '*.jpg'))
+validlist = glob(os.path.join(rootpath, "valid", 'images', '*.jpg'))
+testlist = glob(os.path.join(rootpath, "test", 'images', '*.jpg'))
 
 trainpack, validpack, testpack = [], [], []
 
@@ -26,7 +27,7 @@ for elem in testlist:
     testpack.append({imagename: annotname})
 
 # (dc) dataset state save pickle format
-pklpath = os.path.join("data", "pickles", "dataset_with_original") 
+pklpath = os.path.join(rootpath, "data", "pickles", "dough_sauce_cheese+GammaCorr")
 if not os.path.isdir(pklpath):
     os.makedirs(pklpath, exist_ok=True)
 

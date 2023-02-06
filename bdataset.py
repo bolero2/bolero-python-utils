@@ -37,7 +37,7 @@ class DatasetParser:
             dataset = []
             images, annotations, widths, heights = [], [], [], []
 
-            imglist = glob(os.path.join(self.imgpath, "*.jpg"))
+            imglist = glob(os.path.join(self.imgpath, "*.png"))
             assert len(imglist) > 0, "There isn't image files! Please check paths."
 
             for i, imgname in tqdm(enumerate(imglist), total=len(imglist), desc='Parsing Dataset ... '):

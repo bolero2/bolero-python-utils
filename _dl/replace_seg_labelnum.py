@@ -12,10 +12,10 @@ COLORMAP = get_colormap(256)
 CMAP_LIST = COLORMAP.tolist()
 PALETTE = [value for color in CMAP_LIST for value in color]
 
-rootpath = "/home/bulgogi/bolero/dataset/aistt_dataset/dcdataset/TRAIN/segmentation/dough_result"
+rootpath = "/home/bulgogi/bolero/dataset/aistt_dataset/dcdataset/TRAIN/segmentation/total/annotations+1_2"
 # rootpath = "/home/bulgogi/bolero/dataset/aistt_dataset/dough_data/cropped/annotations"
-oldlabel = 1 
-newlabel = 3
+oldlabel = 3 
+newlabel = 2
 
 annotlist = glob(os.path.join(rootpath, "*.png"))
 

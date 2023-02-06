@@ -59,7 +59,7 @@ if __name__ == '__main__':
     model = load_pretrained(model, weight_file).cuda()
     model.eval()
 
-    imglist = glob.glob(os.path.join("original", "**", "images", "*.jpg"), recursive=True)
+    imglist = glob.glob(os.path.join("total", "images", "*.jpg"), recursive=True)
 
     image_size = (336, 192)
     sv_path = 'dough_result'
