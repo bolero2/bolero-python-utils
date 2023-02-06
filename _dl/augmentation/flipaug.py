@@ -36,6 +36,9 @@ def filtering2(img):       # Gaussian Blur
     dst = cv2.GaussianBlur(img, (0, 0), sigmaX=sigma, sigmaY=sigma)
     return dst
 
+def geometric_flip(img:np.array):
+    pass
+
 
 if __name__ == "__main__":
     for i, data in tqdm(enumerate(zip(imagelist, annotlist)), total=len(imagelist), desc='Flip Augmentation'):

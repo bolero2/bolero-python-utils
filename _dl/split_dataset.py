@@ -3,11 +3,11 @@ from random import shuffle
 import os
 import shutil as sh
 
-rootpath = '/home/bulgogi/bolero/dataset/aistt_dataset/dcdataset/TRAIN/segmentation/dough_sauce_cheese'
+rootpath = '/home/bulgogi/bolero/dataset/aistt_dataset/dcdataset/TRAIN/aimmo_dataset/1/original'
 imglist = glob(os.path.join(rootpath, 'images', '*.jpg'))
 shuffle(imglist)
 
-print(imglist)
+print("Image Count :", len(imglist))
 count = len(imglist)
 
 for i in range(count):
