@@ -2,9 +2,10 @@ import pickle
 import os
 import sys
 from glob import glob
+import datetime
 
 
-rootpath = '/home/bulgogi/bolero/dataset/aistt_dataset/dcdataset/TRAIN/segmentation/dough_sauce_cheese'
+rootpath = '/home/bulgogi/bolero/dataset/aistt_dataset/dcdataset/TRAIN/aimmo_dataset/1/total'
 trainlist = glob(os.path.join(rootpath, "train", 'images', '*.jpg'))
 validlist = glob(os.path.join(rootpath, "valid", 'images', '*.jpg'))
 testlist = glob(os.path.join(rootpath, "test", 'images', '*.jpg'))
@@ -27,7 +28,8 @@ for elem in testlist:
     testpack.append({imagename: annotname})
 
 # (dc) dataset state save pickle format
-pklpath = os.path.join(rootpath, "data", "pickles", "dough_sauce_cheese+GammaCorr")
+date = str(datetime.datetime.now()).replace(" ", "_").replace(":", "-").split(".")[0]
+pklpath = os.path.join(rootpath, "data", "pickles", f"saved-{date}")
 if not os.path.isdir(pklpath):
     os.makedirs(pklpath, exist_ok=True)
 

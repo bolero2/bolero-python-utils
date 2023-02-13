@@ -5,7 +5,10 @@ import numpy as np
 from glob import glob
 
 
-def gamma_correction(img:np.array, gamma:float):
+def gamma_correction(img:np.array, gamma=None):
+    if gamma is None:
+        gamma = random.uniform(0.3, 2.5)
+
     img = img.astype(np.float32) / 255.
 
     new_img = img ** (1 / gamma)
@@ -16,7 +19,7 @@ def gamma_correction(img:np.array, gamma:float):
 
 
 if __name__ == "__main__":
-    rootpath = '/home/bulgogi/bolero/dataset/aistt_dataset/dough_data/cropped/images'
+    rootpath = '/home/bulgogi/bolero/dataset/aistt_dataset/dcdataset/TRAIN/aimmo_dataset/1/total/test/images'
     imglist = glob(os.path.join(rootpath, "*.jpg"), recursive=True)
     print(imglist)
 

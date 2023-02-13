@@ -6,4 +6,4 @@ from .noising import salt_and_pepper
 from .channel_shuffle import channel_shuffle
 
 # Geometrical transpose
-from .flipaug import geometric_flip
+from .flipaug import geometric_flip as flip
