@@ -90,12 +90,13 @@ class DatasetParser:
 
     @staticmethod
     def load_dataset(pkl_path: str):
-        print(f"Load dataset from pickle format : {os.path.basename(pkl_path)}")
+        print(f"\n * Load dataset from pickle format : {os.path.basename(pkl_path)}")
         dataset = None
 
         with open(pkl_path, "rb") as pkl_file:
             dataset = pickle.load(pkl_file)
 
+        print(f"    - {os.path.basename(pkl_path)} Dataset Size :", len(dataset), "\n")
         return dataset
 
 

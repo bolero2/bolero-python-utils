@@ -12,6 +12,10 @@ testlist = glob(os.path.join(rootpath, "test", 'images', '*.jpg'))
 
 trainpack, validpack, testpack = [], [], []
 
+print("\n * Train Dataset >>", len(trainlist))
+print(" * Validation Dataset >>", len(validlist))
+print(" * Test Dataset >>", len(testlist), "\n")
+
 for elem in trainlist:
     imagename = os.path.abspath(elem)
     annotname = os.path.join(os.path.dirname(os.path.abspath(elem)).replace('/images', '/annotations'), os.path.splitext(os.path.basename(elem))[0] + ".png")

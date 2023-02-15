@@ -9,13 +9,6 @@ from copy import deepcopy
 from matplotlib import pyplot as plt
 
 
-rootpath = '/home/bulgogi/bolero/dataset/aistt_dataset/dcdataset/TRAIN/segmentation/dough_sauce_cheese/train'
-imagelist = sorted(glob(os.path.join(rootpath, "images", "*.jpg")))
-annotlist = sorted(glob(os.path.join(rootpath, "annotations", "*.png")))
-os.makedirs(os.path.join(rootpath, "augmented", "normal", "images"), exist_ok=True)
-os.makedirs(os.path.join(rootpath, "augmented", "normal", "annotations"), exist_ok=True)
-
-
 def filtering1(img):     # Salt and Pepper
     ih, iw, ic = img.shape
 
@@ -60,6 +53,13 @@ def geometric_flip(img:np.array, annot, type=[0, 1, 2]):
 
 
 if __name__ == "__main__":
+
+    rootpath = '/home/bulgogi/bolero/dataset/aistt_dataset/dcdataset/TRAIN/segmentation/dough_sauce_cheese/train'
+    imagelist = sorted(glob(os.path.join(rootpath, "images", "*.jpg")))
+    annotlist = sorted(glob(os.path.join(rootpath, "annotations", "*.png")))
+    os.makedirs(os.path.join(rootpath, "augmented", "normal", "images"), exist_ok=True)
+    os.makedirs(os.path.join(rootpath, "augmented", "normal", "annotations"), exist_ok=True)
+
     for i, data in tqdm(enumerate(zip(imagelist, annotlist)), total=len(imagelist), desc='Flip Augmentation'):
         imgfile = data[0]
         annotfile = data[1]

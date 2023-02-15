@@ -15,6 +15,7 @@ import _dl.augmentation as aug
 
 
 FLIP = True
+ELASTIC_DEFORM = True
 
 
 if __name__ == "__main__":
@@ -26,9 +27,19 @@ if __name__ == "__main__":
     os.makedirs(savepath, exist_ok=True)
 
     flip_savepath = os.path.join(savepath, "flip")
+    elastic_deform_savepath = os.path.join(savepath, "elastic_deform")
+    filtered_savepath = os.path.join(savepath, "filtered")
+
     if os.path.isdir(flip_savepath):
         sh.rmtree(flip_savepath)
+    if os.path.isdir(elastic_deform_savepath):
+        sh.rmtree(elastic_deform_savepath)
+    if os.path.isdir(filtered_savepath):
+        sh.rmtree(filtered_savepath)
+
     os.makedirs(flip_savepath, exist_ok=True)
+    os.makedirs(elastic_deform_savepath, exist_ok=True)
+    os.makedirs(filtered_savepath, exist_ok=True)
 
     imglist = glob(os.path.join(rootpath, "images", "*.jpg"))
 
@@ -49,24 +60,36 @@ if __name__ == "__main__":
         if key == ord('q'):
             break
         """
-
-        cv2.imwrite(os.path.join(savepath, basename), filtered)
-        sh.copy(os.path.join(rootpath, "annotations", basename.replace(".jpg", ".png")), savepath)
-
         if FLIP:
-
             annotfile = imgfile.replace("/images/", "/annotations/").replace(".jpg", ".png")
             annot = Image.open(annotfile)
 
             flip_ret = aug.flip(img, annot)
 
-            rint = random.randint(0, len(filtering) - 1)
             for index, data in enumerate(zip(flip_ret[0], flip_ret[1])):
-                img, annot = data
-                cv2.imshow("img", img)
-                cv2.imshow("annot", np.array(annot))
-                cv2.waitKey(100)
-                filtered = eval(filtering[rint])(img) if int(rint) != 0 else img
+                f_img, f_annot = data
+                cv2.imwrite(os.path.join(flip_savepath, f"flip_{index}_{basename}"), f_img)
+                f_annot.save(os.path.join(flip_savepath, f"flip_{index}_{os.path.basename(annotfile)}"))
 
-                cv2.imwrite(os.path.join(flip_savepath, f"flip_{index}_{basename}"), img)
-                annot.save(os.path.join(flip_savepath, f"flip_{index}_{os.path.basename(annotfile)}"))
+        if ELASTIC_DEFORM:
+            annotfile = imgfile.replace("/images/", "/annotations/").replace(".jpg", ".png")
+            annot = Image.open(annotfile)
+
+            ed_ret = aug.elastic_deform(img, annot, img.shape[1] * 2, img.shape[1] * 0.08, img.shape[1] * 0.08)
+
+            ed_img, ed_annot = ed_ret
+            cv2.imwrite(os.path.join(elastic_deform_savepath, f"ed_{basename}"), ed_img)
+            ed_annot.save(os.path.join(elastic_deform_savepath, f"ed_{os.path.basename(annotfile)}"))
+
+    imglist = glob(os.path.join(rootpath, "images", "*.jpg")) + glob(os.path.join(rootpath, "augmented", "**", "*.jpg"))
+
+    for index, imgfile in enumerate(tqdm(imglist, total=len(imglist), desc="filtering process")):
+        img = cv2.imread(imgfile)
+        basename = os.path.basename(imgfile)
+
+        rint = random.randint(0, len(filtering) - 1)
+
+        filtered = eval(filtering[rint])(img) if int(rint) != 0 else img
+        filtered = aug.gamma_correction(filtered)
+
+        cv2.imwrite(os.path.join(filtered_savepath, basename), filtered)
