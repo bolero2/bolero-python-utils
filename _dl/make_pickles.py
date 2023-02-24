@@ -5,7 +5,8 @@ from glob import glob
 import datetime
 
 
-rootpath = '/home/bulgogi/bolero/dataset/aistt_dataset/dcdataset/TRAIN/aimmo_dataset/1/total'
+# rootpath = '/home/bulgogi/bolero/dataset/aistt_dataset/dcdataset/TRAIN/aimmo_dataset/1/total'
+rootpath = '/home/bulgogi/bolero/dataset/aistt_dataset/dcdataset/TRAIN/sample_dataset'
 trainlist = glob(os.path.join(rootpath, "train", 'images', '*.jpg'))
 validlist = glob(os.path.join(rootpath, "valid", 'images', '*.jpg'))
 testlist = glob(os.path.join(rootpath, "test", 'images', '*.jpg'))

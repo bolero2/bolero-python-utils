@@ -15,6 +15,7 @@ import _dl.augmentation as aug
 
 
 FLIP = True
+CROP = True
 ELASTIC_DEFORM = True
 
 
@@ -27,17 +28,24 @@ if __name__ == "__main__":
     os.makedirs(savepath, exist_ok=True)
 
     flip_savepath = os.path.join(savepath, "flip")
+    crop_savepath = os.path.join(savepath, "crop")
     elastic_deform_savepath = os.path.join(savepath, "elastic_deform")
     filtered_savepath = os.path.join(savepath, "filtered")
 
     if os.path.isdir(flip_savepath):
         sh.rmtree(flip_savepath)
+
+    if os.path.isdir(crop_savepath):
+        sh.rmtree(crop_savepath)
+
     if os.path.isdir(elastic_deform_savepath):
         sh.rmtree(elastic_deform_savepath)
+
     if os.path.isdir(filtered_savepath):
         sh.rmtree(filtered_savepath)
 
     os.makedirs(flip_savepath, exist_ok=True)
+    os.makedirs(crop_savepath, exist_ok=True)
     os.makedirs(elastic_deform_savepath, exist_ok=True)
     os.makedirs(filtered_savepath, exist_ok=True)
 
@@ -70,6 +78,18 @@ if __name__ == "__main__":
                 f_img, f_annot = data
                 cv2.imwrite(os.path.join(flip_savepath, f"flip_{index}_{basename}"), f_img)
                 f_annot.save(os.path.join(flip_savepath, f"flip_{index}_{os.path.basename(annotfile)}"))
+
+        if CROP:
+            annotfile = imgfile.replace("/images/", "/annotations/").replace(".jpg", ".png")
+            annot = Image.open(annotfile)
+            label = list(np.unique(np.array(annot)).tolist())
+
+            if 2 in label and 3 in label:
+                crop_ret = aug.crop(img, annot)
+                for index, data in enumerate(zip(crop_ret[0], crop_ret[1])):
+                    c_img, c_annot = data
+                    cv2.imwrite(os.path.join(crop_savepath, f"crop_{index}_{basename}"), c_img)
+                    c_annot.save(os.path.join(crop_savepath, f"crop_{index}_{os.path.basename(annotfile)}"))
 
         if ELASTIC_DEFORM:
             annotfile = imgfile.replace("/images/", "/annotations/").replace(".jpg", ".png")

@@ -29,6 +29,8 @@ if __name__ == "__main__":
         annot_np = np.array(annot)
         if np.unique(annot_np).tolist() == [0]:
             print("Only zero label :", os.path.basename(annotfile))
+            sh.move(imgfile, trashbox)
+            sh.move(annotfile, trashbox)
 
         if aw != iw or ah != ih:
             print("Different filename :", os.path.basename(imgfile))
