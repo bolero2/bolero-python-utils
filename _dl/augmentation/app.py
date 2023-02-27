@@ -68,7 +68,7 @@ if __name__ == "__main__":
         if key == ord('q'):
             break
         """
-        if FLIP:
+        if FLIP:            # tag = flip_
             annotfile = imgfile.replace("/images/", "/annotations/").replace(".jpg", ".png")
             annot = Image.open(annotfile)
 
@@ -79,7 +79,7 @@ if __name__ == "__main__":
                 cv2.imwrite(os.path.join(flip_savepath, f"flip_{index}_{basename}"), f_img)
                 f_annot.save(os.path.join(flip_savepath, f"flip_{index}_{os.path.basename(annotfile)}"))
 
-        if ELASTIC_DEFORM:
+        if ELASTIC_DEFORM:  # tag = ed_
             annotfile = imgfile.replace("/images/", "/annotations/").replace(".jpg", ".png")
             annot = Image.open(annotfile)
 
@@ -89,7 +89,7 @@ if __name__ == "__main__":
             cv2.imwrite(os.path.join(elastic_deform_savepath, f"ed_{basename}"), ed_img)
             ed_annot.save(os.path.join(elastic_deform_savepath, f"ed_{os.path.basename(annotfile)}"))
 
-        if CROP:
+        if CROP:            # tag = crop_
             annotfile = imgfile.replace("/images/", "/annotations/").replace(".jpg", ".png")
             annot = Image.open(annotfile)
             label = list(np.unique(np.array(annot)).tolist())

@@ -6,7 +6,7 @@ import datetime
 
 
 # rootpath = '/home/bulgogi/bolero/dataset/aistt_dataset/dcdataset/TRAIN/aimmo_dataset/1/total'
-rootpath = '/home/bulgogi/bolero/dataset/dsc_dataset/only_dsc/grayscaled'
+rootpath = '/home/bulgogi/bolero/dataset/dsc_dataset/total_aug'
 trainlist = glob(os.path.join(rootpath, "train", 'images', '*.jpg'))
 validlist = glob(os.path.join(rootpath, "valid", 'images', '*.jpg'))
 testlist = glob(os.path.join(rootpath, "test", 'images', '*.jpg'))
@@ -37,6 +37,8 @@ date = str(datetime.datetime.now()).replace(" ", "_").replace(":", "-").split(".
 pklpath = os.path.join(rootpath, "data", "pickles", f"saved-{date}")
 if not os.path.isdir(pklpath):
     os.makedirs(pklpath, exist_ok=True)
+
+print(" * Save directory >>", pklpath, "\n")
 
 train_pkl_path = os.path.join(pklpath, "train.pkl")
 valid_pkl_path = os.path.join(pklpath, "valid.pkl")

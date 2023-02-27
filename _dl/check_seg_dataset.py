@@ -8,7 +8,7 @@ from tqdm import tqdm
 
 
 if __name__ == "__main__":
-    rootpath = "/home/bulgogi/bolero/dataset/dsc_dataset/total/train"
+    rootpath = "/home/bulgogi/bolero/dataset/dsc_dataset/total_aug/train"
     imagelist = sorted(glob(os.path.join(rootpath, "images", "*.jpg")))
     trashbox = os.path.join(rootpath, "trash")
     os.makedirs(trashbox, exist_ok=True)
