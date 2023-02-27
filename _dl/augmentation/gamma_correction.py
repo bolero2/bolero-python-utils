@@ -19,9 +19,9 @@ def gamma_correction(img:np.array, gamma=None):
 
 
 if __name__ == "__main__":
-    rootpath = '/home/bulgogi/bolero/dataset/aistt_dataset/dcdataset/TRAIN/aimmo_dataset/1/total/test/images'
+    rootpath = '/home/bulgogi/bolero/dataset/dsc_dataset/only_dsc/total/train/images/'
     imglist = glob(os.path.join(rootpath, "*.jpg"), recursive=True)
-    print(imglist)
+    print(len(imglist))
 
     for idx, imgname in enumerate(imglist):
         gamma = random.uniform(0.3, 2.5)

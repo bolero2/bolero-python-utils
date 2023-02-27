@@ -20,7 +20,7 @@ ELASTIC_DEFORM = True
 
 
 if __name__ == "__main__":
-    rootpath = '/home/bulgogi/bolero/dataset/aistt_dataset/dcdataset/TRAIN/aimmo_dataset/1/total/train'
+    rootpath = '/home/bulgogi/bolero/dataset/dsc_dataset/total_aug/train'
 
     savepath = os.path.join(rootpath, "augmented")
     if os.path.isdir(savepath):
@@ -79,6 +79,16 @@ if __name__ == "__main__":
                 cv2.imwrite(os.path.join(flip_savepath, f"flip_{index}_{basename}"), f_img)
                 f_annot.save(os.path.join(flip_savepath, f"flip_{index}_{os.path.basename(annotfile)}"))
 
+        if ELASTIC_DEFORM:
+            annotfile = imgfile.replace("/images/", "/annotations/").replace(".jpg", ".png")
+            annot = Image.open(annotfile)
+
+            ed_ret = aug.elastic_deform(img, annot, img.shape[1] * 2, img.shape[1] * 0.08, img.shape[1] * 0.08)
+
+            ed_img, ed_annot = ed_ret
+            cv2.imwrite(os.path.join(elastic_deform_savepath, f"ed_{basename}"), ed_img)
+            ed_annot.save(os.path.join(elastic_deform_savepath, f"ed_{os.path.basename(annotfile)}"))
+
         if CROP:
             annotfile = imgfile.replace("/images/", "/annotations/").replace(".jpg", ".png")
             annot = Image.open(annotfile)
@@ -90,16 +100,6 @@ if __name__ == "__main__":
                     c_img, c_annot = data
                     cv2.imwrite(os.path.join(crop_savepath, f"crop_{index}_{basename}"), c_img)
                     c_annot.save(os.path.join(crop_savepath, f"crop_{index}_{os.path.basename(annotfile)}"))
-
-        if ELASTIC_DEFORM:
-            annotfile = imgfile.replace("/images/", "/annotations/").replace(".jpg", ".png")
-            annot = Image.open(annotfile)
-
-            ed_ret = aug.elastic_deform(img, annot, img.shape[1] * 2, img.shape[1] * 0.08, img.shape[1] * 0.08)
-
-            ed_img, ed_annot = ed_ret
-            cv2.imwrite(os.path.join(elastic_deform_savepath, f"ed_{basename}"), ed_img)
-            ed_annot.save(os.path.join(elastic_deform_savepath, f"ed_{os.path.basename(annotfile)}"))
 
     imglist = glob(os.path.join(rootpath, "images", "*.jpg")) + glob(os.path.join(rootpath, "augmented", "**", "*.jpg"))
 
