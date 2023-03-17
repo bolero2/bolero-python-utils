@@ -58,10 +58,10 @@ if __name__ == '__main__':
     is_cuda = torch.cuda.is_available()
     _device = torch.device("cuda" if is_cuda else "cpu")
 
-    seg_weight_file = f"dough_segmentor/best.pt"
-    dough_weight_file = "/home/bulgogi/bolero/projects/c9e330a8fdb11960/c9e330a8fdb11960.json"
+    dough_weight_file = '/home/bulgogi/bolero/projects/20221229-4f323b486b37774e/20221229-4f323b486b37774e.json'
+    pepperoni_weight_file = "/home/bulgogi/bolero/projects/20221111-1e45ebe4995f53a5/20221111-1e45ebe4995f53a5.json"
 
-    finder = Finder(dough_weight_file, None, seg_weight_file, is_cuda, _device)
+    finder = Finder(dough_weight_file, pepperoni_weight_file, None, is_cuda, _device)
 
     """
     model = models.pidnet.get_pred_model('pidnet-s', 2, activation='relu', dropout=False)
@@ -70,7 +70,7 @@ if __name__ == '__main__':
     model.eval()
     """
 
-    imglist = glob.glob(os.path.join("total", "*.jpg"), recursive=True)
+    imglist = glob.glob(os.path.join("/home/bulgogi/bolero/dataset/aistt_dataset/dcdataset/det_data/new_total_det_dataset", "*.jpg"), recursive=True)
 
     image_size = (336, 192)
     sv_path = 'dough_result'
