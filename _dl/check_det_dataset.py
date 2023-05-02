@@ -2,20 +2,21 @@ import os
 from glob import glob
 from random import shuffle
 import shutil as sh
+from tqdm import tqdm
 
 
-rootpath = '/home/bulgogi/hdisk/'
-ext = 'png'
+rootpath = '/home/bulgogi/bolero/dataset/dsc_dataset/original/instance_segmentation/total'
+ext = 'jpg'
 
-imagelist = glob(os.path.join(rootpath, "snue_folder1", "folder1", f"*.{ext}"))
+imagelist = glob(os.path.join(rootpath, "images", f"*.{ext}"))
 
 shuffle(imagelist)
 os.makedirs(os.path.join(rootpath, "non_annotations"), exist_ok=True)
 
-for i in imagelist:
+for idx, i in enumerate(tqdm(imagelist, total=len(imagelist))):
     assert os.path.isfile(i)
 
-    annotname = os.path.join(i.replace(f'.{ext}', '.txt'))
+    annotname = os.path.join(i.replace(f'.{ext}', '.txt').replace("/images/", "/annotations/"))
     if not os.path.isfile(annotname):
         sh.move(i, os.path.join(rootpath, "non_annotations", f"{os.path.basename(i)}"))
 

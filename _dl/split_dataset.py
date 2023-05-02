@@ -4,7 +4,8 @@ import os
 import shutil as sh
 
 # rootpath = '/home/bulgogi/bolero/dataset/aistt_dataset/dcdataset/TRAIN/aimmo_dataset/1/original'
-rootpath = '/home/bulgogi/bolero/dataset/dsc_dataset/only_dsc/original'
+# rootpath = '/home/bulgogi/bolero/dataset/coco_minitrain/yolo/total'
+rootpath = '/home/bulgogi/bolero/dataset/dsc_dataset/original/instance_segmentation/total'
 imglist = glob(os.path.join(rootpath, 'images', '*.jpg'))
 shuffle(imglist)
 
@@ -13,7 +14,7 @@ count = len(imglist)
 
 for i in range(count):
     t_image = imglist[i]
-    t_annot = os.path.join(rootpath, "annotations", os.path.splitext(os.path.basename(t_image))[0] + ".png")
+    t_annot = os.path.join(rootpath, "annotations", os.path.splitext(os.path.basename(t_image))[0] + ".txt")
 
     assert os.path.isfile(t_image) and os.path.isfile(t_annot)
 
@@ -31,8 +32,8 @@ for i in range(count):
 
     if not os.path.isdir(os.path.join(rootpath, savepath, "images")):
         os.makedirs(os.path.join(rootpath, savepath, "images"), exist_ok=True)
-    if not os.path.isdir(os.path.join(rootpath, savepath, "annotations")):
-        os.makedirs(os.path.join(rootpath, savepath, "annotations"), exist_ok=True)
+    if not os.path.isdir(os.path.join(rootpath, savepath, "labels")):
+        os.makedirs(os.path.join(rootpath, savepath, "labels"), exist_ok=True)
 
     sh.copy(t_image, os.path.join(rootpath, savepath, "images"))
-    sh.copy(t_annot, os.path.join(rootpath, savepath, "annotations"))
+    sh.copy(t_annot, os.path.join(rootpath, savepath, "labels"))

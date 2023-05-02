@@ -2,8 +2,9 @@ import os
 from glob import glob
 
 
-path = '/home/bulgogi/bolero/dataset/aistt_dataset/dcdataset/det_data/total/annotations'
-savepath = '/home/bulgogi/bolero/dataset/aistt_dataset/dcdataset/det_data/new_annotation'
+path = '/home/bulgogi/bolero/dataset/dsc_dataset/original/instance_segmentation/total/pepperoni_det_result/final/labels/'
+savepath = path
+
 annotlist = glob(os.path.join(path, "*.txt"))
 
 for a in annotlist:
@@ -13,8 +14,8 @@ for a in annotlist:
 
     for l in lines:
         l = l.split(' ')
-        if l[0] != '0':
-            l[0] = '1'
+        if l[0] != '3':
+            l[0] = '3'
 
         new_sentence.append(' '.join(l))
 

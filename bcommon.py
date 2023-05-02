@@ -313,7 +313,7 @@ def get_hash():
 
     return f"{yyyymmdd}-{id1}{id2}"
 
-def get_colormap(count=256, cmap_type="pascal"):
+def get_colormap(count=256, cmap_type="pascal", is_gray=False):
     """Creates a label colormap used in PASCAL VOC segmentation benchmark.
     Returns:
         A colormap for visualizing segmentation results.
@@ -340,6 +340,8 @@ def get_colormap(count=256, cmap_type="pascal"):
         return (val >> idx) & 1
 
     cmap_type = cmap_type.lower()
+    colormap = None
+
     if cmap_type == "voc" or cmap_type == "coco":
         cmap_type = "pascal"
 
@@ -351,8 +353,6 @@ def get_colormap(count=256, cmap_type="pascal"):
             for channel in range(3):
                 colormap[:, channel] |= bit_get(ind, channel) << shift
             ind >>= 3
-
-        return colormap
 
     elif cmap_type == "cityscapes":
         colormap = np.zeros((256, 3), dtype=np.uint8)
@@ -376,10 +376,8 @@ def get_colormap(count=256, cmap_type="pascal"):
         colormap[17] = [0, 0, 230]
         colormap[18] = [119, 11, 32]
 
-        return colormap
-
     elif cmap_type == "ade20k":
-        return np.asarray(
+        colormap = np.asarray(
             [
                 [0, 0, 0],
                 [120, 120, 120],
@@ -535,7 +533,7 @@ def get_colormap(count=256, cmap_type="pascal"):
             ]
         )
     elif cmap_type == "kvasir":
-        return np.asarray(
+        colormap = np.asarray(
             [
                 [0, 0, 0],
                 [255, 255, 255]
@@ -544,6 +542,24 @@ def get_colormap(count=256, cmap_type="pascal"):
 
     else:
         raise ValueError("Unsupported dataset.")
+
+    if not is_gray:
+        return colormap
+
+    else:
+        colormap = colormap.tolist()
+        _colormap = []
+
+        for c in colormap:
+            arr = np.array(c)
+            pixel_arr = np.zeros((1, 1, 3))
+            pixel_arr[:] = arr
+            pixel_arr = pixel_arr.astype(np.uint8)
+            pixel_arr = cv2.cvtColor(pixel_arr, cv2.COLOR_BGR2GRAY).tolist()[0][0]
+
+            _colormap.append(pixel_arr)
+
+        return np.asarray(_colormap)
 
 
 def read_json(json_file:str) -> dict:
