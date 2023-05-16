@@ -165,6 +165,8 @@ def make_json_dict(imglist, annotlist, category, fromtype='yolo'):
 
         for line in annotlines:
             line = line.split(" ")
+            if len(line) < 6:
+                continue
             cat_id = int(line[0])
             del line[0]
 
@@ -219,11 +221,11 @@ if __name__ == "__main__":
     # ======================= READ =======================
 
     # ======================= WRITE =======================
-    dataset_rootpath = '/home/bulgogi/bolero/dataset/aistt_ins_seg_dataset/total/valid'
+    dataset_rootpath = '/home/bulgogi/bolero/dataset/aistt_ins_seg_dataset/total/train'
     imglist = glob(os.path.join(dataset_rootpath, "images", "*.jpg"))
     annotlist = glob(os.path.join(dataset_rootpath, "labels", "*.txt"))
 
     json_dict = make_json_dict(imglist, annotlist, ['dough', 'tomato_sauce', 'mozzarella_cheese', 'pepperoni'], fromtype='yolo')
-    with open(os.path.join(dataset_rootpath, f"valid_dataset_coco_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}.json"), 'w') as f:
+    with open(os.path.join(dataset_rootpath, f"train_dataset_coco.json"), 'w') as f:
         json.dump(json_dict, f, indent=2)
     # ======================= WRITE =======================

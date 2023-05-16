@@ -5,7 +5,7 @@ import shutil as sh
 
 # rootpath = '/home/bulgogi/bolero/dataset/aistt_dataset/dcdataset/TRAIN/aimmo_dataset/1/original'
 # rootpath = '/home/bulgogi/bolero/dataset/coco_minitrain/yolo/total'
-rootpath = '/home/bulgogi/bolero/dataset/dsc_dataset/original/instance_segmentation/total'
+rootpath = '/home/bulgogi/bolero/dataset/aistt_ins_seg_dataset/total'
 imglist = glob(os.path.join(rootpath, 'images', '*.jpg'))
 shuffle(imglist)
 
