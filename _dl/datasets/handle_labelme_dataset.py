@@ -5,6 +5,7 @@ from glob import glob
 from datetime import datetime
 from PIL import Image
 import cv2
+import shutil as sh
 import numpy as np
 
 PYTHON_UTILS = os.getenv("PYTHON_UTILS")
@@ -35,21 +36,21 @@ CATEGORIES = []
 
 def read(json_data, dtype='labelme'):
     if dtype == 'labelme':
-        print("\n")
+        # print("\n")
         categories = []
-        print(data.keys())
-        print(data['version'])
-        print(data['flags'])
+        # print(data.keys())
+        # print(data['version'])
+        # print(data['flags'])
         for i in range(len(data['shapes'])):
             category_name = data['shapes'][i]['label']
             categories.append(category_name)
             # print(data['categories'][i]['name'])
 
-        print(categories)
+        # print(categories)
         for i, c in enumerate(categories):
             print(f"  {i}: {c}")
 
-        print(f"  Image Width : {data['imageWidth']} | Image Height : {data['imageHeight']}")
+        # print(f"  Image Width : {data['imageWidth']} | Image Height : {data['imageHeight']}")
         polygons, polygon = [], []
 
         for index in range(len(data['shapes'])):
@@ -72,35 +73,71 @@ def read(json_data, dtype='labelme'):
         raise NotImplementedError
 
 
-def convert_dataset(data, categories, dest='yolo', savedir=''):
+def convert_dataset(data, categories, dest='yolo', dataset_rootpath='', savedir='', savetype='total'):
     width, height = data['width'], data['height']
     filename = data['filename']
     labels = data['category']
     points = data['polygon']
 
-    assert len(labels) == len(points), f"Length of points({len(points)}) and length of categories({len(labels)}) are different."
+    if savetype == 'total':
+        savedir = os.path.join(dataset_rootpath, savetype, savedir)
+        sentences = []
+        for l, p in zip(labels, points):
+            # label_index = categories.index(l)
+            label_index = categories.index(l)
 
-    sentences = []
-    for l, p in zip(labels, points):
-        label_index = categories.index(l)
-        p[0::2] = np.array(p[0::2]) / width
-        p[1::2] = np.array(p[1::2]) / height
-        p = list(map(str, p))
-        points_sentence = ' '.join(p)
-        sentences.append(f"{label_index} {points_sentence}\n")
+            p[0::2] = np.array(p[0::2]) / width
+            p[1::2] = np.array(p[1::2]) / height
 
-    if savedir != '' and not os.path.isdir(savedir):
-        print("  Making save directory :", savedir)
-        os.makedirs(savedir, exist_ok=True)
+            p = list(map(str, p))
+            points_sentence = ' '.join(p)
+            sentences.append(f"{label_index} {points_sentence}\n")
 
-    print(sentences)
+        if savedir != '' and not os.path.isdir(savedir):
+            print("  Making save directory :", savedir)
+            os.makedirs(savedir, exist_ok=True)
 
-    with open(os.path.join(savedir, filename.replace(".jpg", ".txt")), 'w') as f:
-        f.writelines(sentences)
+        with open(os.path.join(savedir, filename.replace(".jpg", ".txt")), 'w') as f:
+            f.writelines(sentences)
+
+    elif savetype == 'ingredients':
+        savedir = os.path.join(dataset_rootpath, savetype)
+        save_names = {}
+        sentences = []
+        for l, p in zip(labels, points):        # l = label_name
+            label_index = 0
+            print(p)
+            p[0::2] = np.array(p[0::2]) / width
+            p[1::2] = np.array(p[1::2]) / height
+
+            p = list(map(str, p))
+            points_sentence = ' '.join(p)
+            points_sentence = f"0 {points_sentence}\n"
+
+            temp_sentences_list = save_names.get(l, [])
+            temp_sentences_list.append(points_sentence)
+            save_names[l] = temp_sentences_list
+
+        for target_name, target_points in save_names.items():
+            save_image_path = os.path.join(savedir, target_name, "images")
+            save_label_path = os.path.join(savedir, target_name, "labels")
+
+            if not os.path.isdir(save_image_path):
+                os.makedirs(save_image_path, exist_ok=True)
+            if not os.path.isdir(save_label_path):
+                os.makedirs(save_label_path, exist_ok=True)
+
+            sh.copy(os.path.join(dataset_rootpath, "images", filename), save_image_path)
+            with open(os.path.join(save_label_path, filename.replace(".jpg", ".txt")), 'w') as f:
+                f.writelines(save_names[target_name])
 
 
 if __name__ == "__main__":
-    dataset_rootpath = '/home/bulgogi/bolero/dataset/aistt_ingredients/dough+tomato_sauce/'
+    # dataset_rootpath = '/home/bulgogi/bolero/dataset/aistt_ingredients/dough+tomato_sauce/'
+    # dataset_rootpath = '/home/bulgogi/bolero/dataset/aistt_ingredients/dough'
+    dataset_rootpath = '/home/bulgogi/Desktop/margeritta_jsons/'
+    categories=['dough', 'tomato_sauce', 'mozzarella_cheese', 'pepperoni', 'basil_oil', 'marinated_tomato', 'meat_sauce'] 
+
     jsonlist = glob(os.path.join(dataset_rootpath, "jsons", "*.json"))
 
     annotations = []
@@ -112,11 +149,10 @@ if __name__ == "__main__":
             data = json.load(f)
         _annotation = read(data, dtype='labelme')
         annotations.append(_annotation)
-
     # ======================= READ =======================
 
     # ======================= WRITE =======================
     for annot in annotations:
-        print(annot)
-        convert_dataset(annot, savedir=os.path.join(dataset_rootpath, 'txtfiles'), categories=['doughs', 'tomato_sauce', 'mozzarella_cheese'])
+        convert_dataset(annot, savedir='labels', dataset_rootpath=dataset_rootpath, categories=categories, savetype='total')
+        # convert_dataset(annot, dataset_rootpath=dataset_rootpath, categories=categories, savetype='ingredients')
     # ======================= WRITE =======================

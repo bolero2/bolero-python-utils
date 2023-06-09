@@ -5,9 +5,9 @@ import shutil as sh
 
 
 if __name__ == "__main__":
-    dataset_rootpath = 'saved/mozzarella_cheese'
-    savedir = 'selected'
-    trashbox = '_trashbox'
+    dataset_rootpath = '/home/bulgogi/bolero/dataset/aistt_ins_seg_dataset/v2/total/images'
+    savedir = os.path.join(dataset_rootpath, 'selected')
+    trashbox = os.path.join(dataset_rootpath, '_trashbox')
 
     if not os.path.isdir(savedir):
         os.makedirs(savedir, exist_ok=True)
@@ -35,8 +35,8 @@ if __name__ == "__main__":
             # os.remove(filename)
             # del imglist[imglist.index(filename)]
             # imgcount = len(imglist)
-        elif key == ord('e'):
-            os.remove(filename)
+        elif key == ord('r'):
+            sh.copy(filename, savedir)
             del imglist[imglist.index(filename)]
             index += 1
             imgcount = len(imglist)
@@ -50,3 +50,7 @@ if __name__ == "__main__":
         if index > imgcount - 1:
             print("==================== Last Image!")
             index = imgcount - 1
+
+
+        if index % 100 == 0:
+            print("Now Index :", index)
