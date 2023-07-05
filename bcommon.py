@@ -340,12 +340,16 @@ def get_colormap(count=256, cmap_type="pascal", is_gray=False):
         return (val >> idx) & 1
 
     cmap_type = cmap_type.lower()
+    cmap_type = 'pascal' if (cmap_type == 'voc') or (cmap_type == 'coco') else cmap_type
     colormap = None
 
-    if cmap_type == "voc" or cmap_type == "coco":
-        cmap_type = "pascal"
+    if cmap_type == 'singleton':
+        colormap = np.zeros((count, 3), dtype=int)
+        colormap[:, 0].fill(139)
+        colormap[:, 1].fill(0)
+        colormap[:, 2].fill(255)
 
-    if cmap_type == "pascal":
+    elif cmap_type == "pascal":
         colormap = np.zeros((count, 3), dtype=int)
         ind = np.arange(count, dtype=int)
 

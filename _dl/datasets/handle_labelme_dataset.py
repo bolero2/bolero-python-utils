@@ -95,9 +95,11 @@ def convert_dataset(data, categories, dest='yolo', dataset_rootpath='', savedir=
 
         if savedir != '' and not os.path.isdir(savedir):
             print("  Making save directory :", savedir)
-            os.makedirs(savedir, exist_ok=True)
+            os.makedirs(savedir, exist_ok=True)    
 
-        with open(os.path.join(savedir, filename.replace(".jpg", ".txt")), 'w') as f:
+        savepath = os.path.join(savedir, filename.replace(".jpg", ".txt"))
+        print("\t saved in", savepath)
+        with open(savepath, 'w') as f:
             f.writelines(sentences)
 
     elif savetype == 'ingredients':
@@ -133,10 +135,10 @@ def convert_dataset(data, categories, dest='yolo', dataset_rootpath='', savedir=
 
 
 if __name__ == "__main__":
-    # dataset_rootpath = '/home/bulgogi/bolero/dataset/aistt_ingredients/dough+tomato_sauce/'
-    # dataset_rootpath = '/home/bulgogi/bolero/dataset/aistt_ingredients/dough'
-    dataset_rootpath = '/home/bulgogi/Desktop/margeritta_jsons/'
-    categories=['dough', 'tomato_sauce', 'mozzarella_cheese', 'pepperoni', 'basil_oil', 'marinated_tomato', 'meat_sauce'] 
+    dataset_rootpath = '/home/bulgogi/Desktop/3_total_sweet_potato/labelme'
+    # dataset_rootpath = '/home/bulgogi/Desktop/sharing/20230629이전 요청 레이블링/이윤환'
+    # dataset_rootpath = '/home/bulgogi/bolero/dataset/aistt_ingredients/v1/dough/test'
+    categories = ['dough', 'tomato_sauce', 'mozzarella_cheese', 'pepperoni', 'basil_oil', 'marinated_tomato', 'mayonnaise', 'gorgonzola', 'sweet_potato_mousse', 'onion', 'sweet_corn']
 
     jsonlist = glob(os.path.join(dataset_rootpath, "jsons", "*.json"))
 
@@ -151,8 +153,13 @@ if __name__ == "__main__":
         annotations.append(_annotation)
     # ======================= READ =======================
 
+    import copy
+    annotations_v2 = copy.deepcopy(annotations)
+
     # ======================= WRITE =======================
     for annot in annotations:
         convert_dataset(annot, savedir='labels', dataset_rootpath=dataset_rootpath, categories=categories, savetype='total')
-        # convert_dataset(annot, dataset_rootpath=dataset_rootpath, categories=categories, savetype='ingredients')
+
+    for annot in annotations_v2:
+        convert_dataset(annot, savedir='labels', dataset_rootpath=dataset_rootpath, categories=categories, savetype='ingredients')
     # ======================= WRITE =======================

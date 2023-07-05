@@ -4,9 +4,10 @@ import shutil as sh
 
 
 if __name__ == "__main__":
-    dataset_rootpath = '/home/bulgogi/Desktop/newpizza/train'
-    categories = ['basil_oil', 'marinated_tomato', 'tomato_sauce']
+    dataset_rootpath = '/home/bulgogi/Desktop/sharing/230629/곽성호'
+    categories = ['onion', 'sweet_corn', 'sweet_potato_mousse']
     labellist = glob(os.path.join(dataset_rootpath, "labels", "*.txt"))
+    print("Label count :", len(labellist))
 
     for cat in categories:
         os.makedirs(os.path.join(dataset_rootpath, 'ingredients', cat), exist_ok=True)
@@ -25,7 +26,7 @@ if __name__ == "__main__":
             if line[-1] != '\n':
                 line = line + '\n'
             label_index = int(line.split(' ')[0])
-            print(label_index)
+            # print(label_index)
             # points = line.split(' ')[1]
             label_name = categories[label_index]
 
