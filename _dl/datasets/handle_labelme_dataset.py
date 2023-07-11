@@ -7,11 +7,13 @@ from PIL import Image
 import cv2
 import shutil as sh
 import numpy as np
+import copy
 
 PYTHON_UTILS = os.getenv("PYTHON_UTILS")
 sys.path.append(PYTHON_UTILS)
 
 from bcommon import convert_coordinate as cc
+from handle_utils import read, labelme2yolo
 
 
 """
@@ -34,111 +36,14 @@ filename.json
 CATEGORIES = []
 
 
-def read(json_data, dtype='labelme'):
-    if dtype == 'labelme':
-        # print("\n")
-        categories = []
-        # print(data.keys())
-        # print(data['version'])
-        # print(data['flags'])
-        for i in range(len(data['shapes'])):
-            category_name = data['shapes'][i]['label']
-            categories.append(category_name)
-            # print(data['categories'][i]['name'])
-
-        # print(categories)
-        for i, c in enumerate(categories):
-            print(f"  {i}: {c}")
-
-        # print(f"  Image Width : {data['imageWidth']} | Image Height : {data['imageHeight']}")
-        polygons, polygon = [], []
-
-        for index in range(len(data['shapes'])):
-            for elem in data['shapes'][index]['points']:
-                polygon += elem
-            polygons.append(polygon)
-            polygon = []
-
-        _ret = {
-            "width": data['imageWidth'],
-            "height": data['imageHeight'], 
-            "polygon": polygons,
-            "category": categories,
-            "filename": data['imagePath'] }
-
-        return _ret
-    elif dtype == 'yolo':
-        return None
-    else:
-        raise NotImplementedError
-
-
-def convert_dataset(data, categories, dest='yolo', dataset_rootpath='', savedir='', savetype='total'):
-    width, height = data['width'], data['height']
-    filename = data['filename']
-    labels = data['category']
-    points = data['polygon']
-
-    if savetype == 'total':
-        savedir = os.path.join(dataset_rootpath, savetype, savedir)
-        sentences = []
-        for l, p in zip(labels, points):
-            # label_index = categories.index(l)
-            label_index = categories.index(l)
-
-            p[0::2] = np.array(p[0::2]) / width
-            p[1::2] = np.array(p[1::2]) / height
-
-            p = list(map(str, p))
-            points_sentence = ' '.join(p)
-            sentences.append(f"{label_index} {points_sentence}\n")
-
-        if savedir != '' and not os.path.isdir(savedir):
-            print("  Making save directory :", savedir)
-            os.makedirs(savedir, exist_ok=True)    
-
-        savepath = os.path.join(savedir, filename.replace(".jpg", ".txt"))
-        print("\t saved in", savepath)
-        with open(savepath, 'w') as f:
-            f.writelines(sentences)
-
-    elif savetype == 'ingredients':
-        savedir = os.path.join(dataset_rootpath, savetype)
-        save_names = {}
-        sentences = []
-        for l, p in zip(labels, points):        # l = label_name
-            label_index = 0
-            print(p)
-            p[0::2] = np.array(p[0::2]) / width
-            p[1::2] = np.array(p[1::2]) / height
-
-            p = list(map(str, p))
-            points_sentence = ' '.join(p)
-            points_sentence = f"0 {points_sentence}\n"
-
-            temp_sentences_list = save_names.get(l, [])
-            temp_sentences_list.append(points_sentence)
-            save_names[l] = temp_sentences_list
-
-        for target_name, target_points in save_names.items():
-            save_image_path = os.path.join(savedir, target_name, "images")
-            save_label_path = os.path.join(savedir, target_name, "labels")
-
-            if not os.path.isdir(save_image_path):
-                os.makedirs(save_image_path, exist_ok=True)
-            if not os.path.isdir(save_label_path):
-                os.makedirs(save_label_path, exist_ok=True)
-
-            sh.copy(os.path.join(dataset_rootpath, "images", filename), save_image_path)
-            with open(os.path.join(save_label_path, filename.replace(".jpg", ".txt")), 'w') as f:
-                f.writelines(save_names[target_name])
-
-
 if __name__ == "__main__":
-    dataset_rootpath = '/home/bulgogi/Desktop/3_total_sweet_potato/labelme'
+    categories = ['dough', 'tomato_sauce', 'mozzarella_cheese', 'pepperoni', 'basil_oil', 'marinated_tomato', 'mayonnaise', 'gorgonzola', 'sweet_potato_mousse', 'onion', 'sweet_corn', 'better_bite', 'bacon', 'bulgogi_grinding']
+
+    # dataset_rootpath = '/home/bulgogi/Desktop/3_total_sweet_potato/labelme'
+    dataset_rootpath = '/home/bulgogi/Desktop/4_total_bacon_potato/labelme'
     # dataset_rootpath = '/home/bulgogi/Desktop/sharing/20230629이전 요청 레이블링/이윤환'
     # dataset_rootpath = '/home/bulgogi/bolero/dataset/aistt_ingredients/v1/dough/test'
-    categories = ['dough', 'tomato_sauce', 'mozzarella_cheese', 'pepperoni', 'basil_oil', 'marinated_tomato', 'mayonnaise', 'gorgonzola', 'sweet_potato_mousse', 'onion', 'sweet_corn']
+    category = ''    # 'class_name' or ''
 
     jsonlist = glob(os.path.join(dataset_rootpath, "jsons", "*.json"))
 
@@ -147,19 +52,21 @@ if __name__ == "__main__":
     # ======================= READ =======================
     for jsonfile in jsonlist:
         print("Target file :", jsonfile)
+        imagefile = jsonfile.replace("/jsons/", "/images/").replace(".json", ".jpg")
         with open(jsonfile) as f:
             data = json.load(f)
-        _annotation = read(data, dtype='labelme')
+        _annotation = read(data, imagefile, dtype='labelme')
         annotations.append(_annotation)
     # ======================= READ =======================
 
-    import copy
-    annotations_v2 = copy.deepcopy(annotations)
+    annotations2 = copy.deepcopy(annotations)
 
     # ======================= WRITE =======================
+    print("Write in 'total'")
     for annot in annotations:
-        convert_dataset(annot, savedir='labels', dataset_rootpath=dataset_rootpath, categories=categories, savetype='total')
+        labelme2yolo(annot, savedir='labels', dataset_rootpath=dataset_rootpath, categories=categories, savetype='total')
 
-    for annot in annotations_v2:
-        convert_dataset(annot, savedir='labels', dataset_rootpath=dataset_rootpath, categories=categories, savetype='ingredients')
+    print("Write in 'ingredients'")
+    for annot in annotations2:
+        labelme2yolo(annot, savedir='labels', dataset_rootpath=dataset_rootpath, categories=categories, savetype='ingredients')
     # ======================= WRITE =======================

@@ -4,8 +4,8 @@ import shutil as sh
 
 
 if __name__ == "__main__":
-    dataset_rootpath = '/home/bulgogi/Desktop/sharing/230629/곽성호'
-    categories = ['onion', 'sweet_corn', 'sweet_potato_mousse']
+    dataset_rootpath = '/home/bulgogi/Desktop/sharing/230703/곽성호/labeled'
+    categories = ['bacon', 'better_bite', 'bulgogi_grinding']
     labellist = glob(os.path.join(dataset_rootpath, "labels", "*.txt"))
     print("Label count :", len(labellist))
 
