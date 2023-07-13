@@ -12,7 +12,7 @@ def reshape_416640(img):
     new_ih = 416 if abs(416 - ih) < abs(640 - ih) else 640
 
     img_reshaped = cv2.resize(img, (new_iw, new_ih))
-    print(f"{i} : Convert ({iw}, {ih}) to ({new_iw}, {new_ih})")
+    print(f" ⭕️ Convert ({iw}, {ih}) 👉🏻 ({new_iw}, {new_ih})")
     
     return img_reshaped
 
