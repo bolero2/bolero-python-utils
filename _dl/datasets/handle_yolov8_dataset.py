@@ -38,8 +38,8 @@ CATEGORIES = []
 if __name__ == "__main__":
     categories = ['dough', 'tomato_sauce', 'mozzarella_cheese', 'pepperoni', 'basil_oil', 'marinated_tomato', 'mayonnaise', 'gorgonzola', 'sweet_potato_mousse', 'onion', 'sweet_corn', 'better_bite', 'bacon', 'bulgogi_grinding']
 
-    dataset_rootpath = '/home/bulgogi/bolero/dataset/aistt_ingredients/v1/dough'
-    category = 'dough'    # 'class_name' or ''
+    dataset_rootpath = '/home/bulgogi/bolero/dataset/aistt_ingredients/v1/mayonnaise'
+    category = 'mayonnaise'    # 'class_name' or ''
 
     txtlist = glob(os.path.join(dataset_rootpath, "labels", "*.txt"))
 
@@ -54,6 +54,7 @@ if __name__ == "__main__":
         _annotation = read(lines, imagefile, dtype='yolo', classes=category if category != '' else categories)
         annotations[imagefile] = _annotation
     # ======================= READ =======================
+    os.makedirs(os.path.join(dataset_rootpath, "jsons"), exist_ok=True)
 
     # ======================= WRITE =======================
     for imgfile, _dict in annotations.items():

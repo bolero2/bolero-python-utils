@@ -62,9 +62,9 @@ if __name__ == "__main__":
     annotations2 = copy.deepcopy(annotations)
 
     # ======================= WRITE =======================
-    print("Write in 'total'")
-    for annot in annotations:
-        labelme2yolo(annot, savedir='labels', dataset_rootpath=dataset_rootpath, categories=categories, savetype='total')
+    # print("Write in 'total'")
+    # for annot in annotations:
+    #     labelme2yolo(annot, savedir='labels', dataset_rootpath=dataset_rootpath, categories=categories, savetype='total')
 
     print("Write in 'ingredients'")
     for annot in annotations2:
