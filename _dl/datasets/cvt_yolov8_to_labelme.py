@@ -36,10 +36,13 @@ CATEGORIES = []
 
 
 if __name__ == "__main__":
-    categories = ['dough', 'tomato_sauce', 'mozzarella_cheese', 'pepperoni', 'basil_oil', 'marinated_tomato', 'mayonnaise', 'gorgonzola', 'sweet_potato_mousse', 'onion', 'sweet_corn', 'better_bite', 'bacon', 'bulgogi_grinding']
+    # categories = ['dough', 'tomato_sauce', 'mozzarella_cheese', 'pepperoni', 'basil_oil', 'marinated_tomato', 'mayonnaise', 'gorgonzola', 'sweet_potato_mousse', 'onion', 'sweet_corn', 'better_bite', 'bacon', 'bulgogi_grinding']
+    # categories = ['bulgogi', 'green_pepper', 'mushroom', 'onion', 'roasted_onion_sauce']
+    categories = ['bacon', 'better_bite', 'bulgogi_grinding', 'mozzarella_cheese', 'onion', 'tomato_sauce']
 
-    dataset_rootpath = '/home/bulgogi/bolero/dataset/aistt_ingredients/v1/mayonnaise'
-    category = 'mayonnaise'    # 'class_name' or ''
+    # dataset_rootpath = f'/home/bulgogi/bolero/dataset/aistt_ingredients/v2/green_pepper'
+    dataset_rootpath = f'/home/bulgogi/Desktop/sharing/_finished/sungho-baconpotato-finished-checking/labeled'
+    category = ''    # 'class_name' or ''
 
     txtlist = glob(os.path.join(dataset_rootpath, "labels", "*.txt"))
 

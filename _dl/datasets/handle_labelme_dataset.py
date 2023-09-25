@@ -8,6 +8,7 @@ import cv2
 import shutil as sh
 import numpy as np
 import copy
+import argparse
 
 PYTHON_UTILS = os.getenv("PYTHON_UTILS")
 sys.path.append(PYTHON_UTILS)
@@ -33,14 +34,32 @@ filename.json
   - imageWidth: integer
 """ 
 
-CATEGORIES = []
+CATEGORIES = [] 
+
+
+def parse_args():
+    parser = argparse.ArgumentParser(description='Custom Input')
+
+    parser.add_argument('-d', '--dir', help='target directory name', default='')
+
+    args = parser.parse_args()
+
+    print("Args :", args, "\n\n\n")
+
+    return args
 
 
 if __name__ == "__main__":
-    categories = ['dough', 'tomato_sauce', 'mozzarella_cheese', 'pepperoni', 'basil_oil', 'marinated_tomato', 'mayonnaise', 'gorgonzola', 'sweet_potato_mousse', 'onion', 'sweet_corn', 'better_bite', 'bacon', 'bulgogi_grinding']
+    args = parse_args()
+    pwd = os.getcwd()
+
+    dirname = args.dir
+
+    categories = ['dough', 'tomato_sauce', 'mozzarella_cheese', 'pepperoni', 'basil_oil', 'marinated_tomato', 'mayonnaise', 'gorgonzola', 'sweet_potato_mousse', 'onion', 'sweet_corn', 'better_bite', 'bacon', 'bulgogi_grinding', 'meat_sauce', 'pork_topping', 'roasted_onion_sauce', 'red_cheddar_cheese', 'jack_daniel_sauce', 'jack_daniel_and_mayonnaise', 'popcorn_chicken', 'cutting_corn', 'consomme_sauce', 'mushroom', 'bulgogi', 'green_pepper', 'black_olive']
 
     # dataset_rootpath = '/home/bulgogi/Desktop/3_total_sweet_potato/labelme'
-    dataset_rootpath = '/home/bulgogi/Desktop/4_total_bacon_potato/labelme'
+    dataset_rootpath = '/home/bulgogi/Desktop/4_total_bacon_potato/labelme' if dirname == '' else dirname
+    print("[handle_labelme_dataset.py] dataset_rootpath :", dataset_rootpath)
     # dataset_rootpath = '/home/bulgogi/Desktop/sharing/20230629이전 요청 레이블링/이윤환'
     # dataset_rootpath = '/home/bulgogi/bolero/dataset/aistt_ingredients/v1/dough/test'
     category = ''    # 'class_name' or ''
@@ -68,5 +87,8 @@ if __name__ == "__main__":
 
     print("Write in 'ingredients'")
     for annot in annotations2:
-        labelme2yolo(annot, savedir='labels', dataset_rootpath=dataset_rootpath, categories=categories, savetype='ingredients')
+        try:
+            labelme2yolo(annot, savedir='labels', dataset_rootpath=dataset_rootpath, categories=categories, savetype='ingredients')
+        except:
+            continue
     # ======================= WRITE =======================

@@ -1,13 +1,33 @@
 from glob import glob
 import os
 import shutil as sh
+import argparse
+
+
+def parse_args():
+    parser = argparse.ArgumentParser(description='Custom Input')
+    parser.add_argument('-d', '--dir', help='target directory name', default='')
+    parser.add_argument('-c', '--classes', help='classes list', type=lambda x:list(map(str, x.split(','))), default=list())    # onion,sweet_corn,sweet_potato_mousse
+    args = parser.parse_args()
+
+    print("Args :", args, "\n\n")
+
+    return args
 
 
 if __name__ == "__main__":
-    dataset_rootpath = '/home/bulgogi/Desktop/sharing/230703/곽성호/labeled'
-    categories = ['bacon', 'better_bite', 'bulgogi_grinding']
+    args = parse_args()
+
+    dataset_rootpath = '/home/bulgogi/Desktop/sharing/230809/곽성호/labeled' if args.dir == '' else args.dir
+
+    categories = ['bulgogi', 'green_pepper', 'mushroom', 'onion', 'roasted_onion_sauce'] if args.classes == [] else args.classes
+    print(f"Categories : {categories} ({len(categories)})\n")
+    
+    print("[get_ingredient_dataset_from_total.py] dataset_rootpath :", dataset_rootpath)
+    print("[get_ingredient_dataset_from_total.py] categories :", categories)
+    
     labellist = glob(os.path.join(dataset_rootpath, "labels", "*.txt"))
-    print("Label count :", len(labellist))
+    print(f"annotation file count : {len(labellist)}")
 
     for cat in categories:
         os.makedirs(os.path.join(dataset_rootpath, 'ingredients', cat), exist_ok=True)
