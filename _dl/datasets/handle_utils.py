@@ -10,7 +10,7 @@ from PIL import Image
 PYTHON_UTILS = os.getenv("PYTHON_UTILS")
 sys.path.append(PYTHON_UTILS)
 
-from bcommon import convert_coordinate as cc
+from commons import convert_coordinate as cc
 
 
 """
@@ -116,6 +116,11 @@ def labelme2yolo(data, categories, dataset_rootpath='', savedir='', savetype='to
         savedir = os.path.join(dataset_rootpath, savetype, savedir)
         sentences = []
         for l, p in zip(labels, points):
+            l = l.replace("\\", "").lower()
+            if l == "mozzarella":
+                l = "mozzarella_cheese"
+            elif l == 'sauce':
+                l = 'tomato_sauce'
             # label_index = categories.index(l)
             label_index = categories.index(l)
 
