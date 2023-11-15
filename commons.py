@@ -101,9 +101,11 @@ def image_blending(target, colormap, gamma=0.25):
     """Blending target image and segmentation colormap image(png format)
 
     Args:
-        target (numpy.ndarray): Target Image, RGB color.
-        colormap (PIL.Image): segmented colormap image, this can be used by segmentation ground-truth data.
-        gamma (float): blending strength. Target data is the standard.
+        - target (numpy.ndarray): Target Image, RGB color.
+        - colormap (PIL.Image): segmented colormap image, this can be used by segmentation ground-truth data.
+        - gamma (float): blending strength. Target data is the standard.
+            - if gamma is 1, you cannot see colormap image.
+            - elif gamma is 0, you can see brightest colormap image.
 
     Returns:
         numpy.ndarray image data
