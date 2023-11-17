@@ -23,7 +23,7 @@ from torchvision import transforms
 
 PYTHON_UTILS = os.getenv("PYTHON_UTILS")
 sys.path.append(PYTHON_UTILS)
-from bcommon import get_colormap
+from commons import get_colormap
 
 COLORMAP = get_colormap(256)
 CMAP_LIST = COLORMAP.tolist()
@@ -121,8 +121,8 @@ if __name__ == "__main__":
     sys.path.append(PROJECT_HOME)
 
     from bjob import Project
-    from bcommon import convert_coordinate as cc
-    from bcommon import get_colormap, decode_seg_map_sequence
+    from commons import convert_coordinate as cc
+    from commons import get_colormap, decode_seg_map_sequence
 
     COLORMAP = get_colormap(255)
     CMAP_LIST = COLORMAP.tolist()

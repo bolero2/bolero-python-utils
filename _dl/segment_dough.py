@@ -18,7 +18,7 @@ import torch.nn.functional as F
 from PIL import Image
 sys.path.append(os.getenv("PYTHON_UTILS"))
 from bdataset import DatasetParser
-from bcommon import get_colormap, image_blending
+from commons import get_colormap, image_blending
 from metrics import get_metric_for_segmentation
 import getpass
 

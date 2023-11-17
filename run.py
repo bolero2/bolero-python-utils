@@ -1,4 +1,4 @@
-from bcommon import image_blending
+from commons import image_blending
 from glob import glob
 import os
 import cv2
