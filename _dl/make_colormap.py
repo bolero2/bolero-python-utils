@@ -8,7 +8,7 @@ from PIL import Image, ImageDraw
 PYTHON_UTILS = os.getenv("PYTHON_UTILS")
 sys.path.append(PYTHON_UTILS)
 
-from bcommon import get_colormap
+from commons import get_colormap
 
 
 rootpath = '/home/bulgogi/bolero/dataset/aistt_dataset/dough_data'

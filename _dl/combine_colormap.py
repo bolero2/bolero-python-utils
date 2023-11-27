@@ -6,7 +6,7 @@ from PIL import Image
 from glob import glob
 PYTHON_UTILS = os.getenv("PYTHON_UTILS")
 sys.path.append(PYTHON_UTILS)
-from bcommon import get_colormap
+from commons import get_colormap
 
 COLORMAP = get_colormap(256)
 CMAP_LIST = COLORMAP.tolist()

@@ -5,7 +5,7 @@ import shutil as sh
 import sys
 PYTHON_UTILS = os.getenv("PYTHON_UTILS")
 sys.path.append(PYTHON_UTILS)
-from bcommon import draw_bbox_image
+from commons import draw_bbox_image
 import cv2
 
 

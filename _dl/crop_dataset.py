@@ -29,7 +29,7 @@ from get_model import get_model
 from bjob import Project
 from metrics import get_metric_for_detection
 from bdataset import DatasetParser
-from bcommon import convert_coordinate as cc
+from commons import convert_coordinate as cc
 # matplotlib.use('TkAgg')
 
 
