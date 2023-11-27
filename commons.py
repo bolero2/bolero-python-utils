@@ -545,6 +545,34 @@ def get_colormap(count=256, cmap_type="pascal", is_gray=False):
                 [255, 255, 255]
             ]
         )
+    elif cmap_type == 'gopizza':
+        colormap = np.asarray(
+            [
+                [185, 180, 150],    # dough 
+                [75, 15, 0],        # tomato_sauce
+                [255, 255, 195],    # mozzarella_cheese
+                [160, 80, 40],      # pepperoni
+                [40, 100, 0],       # basil_oil
+                [160, 30, 0],       # marinated_tomato
+                [220, 220, 220],    # mayonnaise
+                [150, 150, 130],    # gorgonzola
+                [180, 160, 30],     # sweet_potato_mousse
+                [200, 200, 175],    # onion
+                [200, 180, 40],     # sweet_corn
+                [185, 165, 65],     # better_bite
+                [150, 120, 120],    # bacon
+                [130, 100, 60],     # bulgogi_grinding
+                [180, 100, 20],     # meat_sauce
+                [140, 130, 100],    # pork_topping
+                [130, 70, 25],      # roasted_onion_sauce
+                [230, 180, 70],     # red_cheddar_cheese
+                [210, 200, 150],    # consomme_sauce
+                [200, 200, 200],    # mushroom
+                [80, 60, 45],       # bulgogi
+                [45, 70, 5],        # green_pepper
+                [50, 50, 50]           # black_olive
+            ]
+        )
 
     else:
         raise ValueError("Unsupported dataset.")
